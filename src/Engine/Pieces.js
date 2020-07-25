@@ -6,7 +6,7 @@ class Piece {
     }
 }
 
-class King extends Piece {
+export class King extends Piece {
     constructor(props){
         super(props);
         this.type = "king";
@@ -25,7 +25,7 @@ class King extends Piece {
     }
 }
 
-class Queen extends Piece {
+export class Queen extends Piece {
     constructor(props){
         super(props);
         this.type = "queen";
@@ -44,7 +44,7 @@ class Queen extends Piece {
     }
 }
 
-class Bishop extends Piece {
+export class Bishop extends Piece {
     constructor(props){
         super(props);
         this.type = "bishop";
@@ -59,7 +59,7 @@ class Bishop extends Piece {
     }
 }
 
-class Rook extends Piece {
+export class Rook extends Piece {
     constructor(props){
         super(props);
         this.type = "rook";
@@ -74,11 +74,11 @@ class Rook extends Piece {
     }
 }
 
-class Pawn extends Piece {
+export class Pawn extends Piece {
     constructor(props){
         super(props);
         this.type = "pawn";
-        if (this.color = "black") {
+        if (this.color === "black") {
             this.moveDirections = [
                 [-1,0]
             ]
@@ -87,7 +87,7 @@ class Pawn extends Piece {
                 [-1,-1]
             ]
         }
-        if (this.color = "white") {
+        if (this.color === "white") {
             this.moveDirections = [
                 [1,0]
             ]
@@ -100,7 +100,7 @@ class Pawn extends Piece {
     }
 }
 
-class Knight extends Piece {
+export class Knight extends Piece {
     constructor(props){
         super(props);
         this.type = "knight";

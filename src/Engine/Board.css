@@ -1,0 +1,17 @@
+.board {
+    border: 3px solid lightslategray
+}
+
+.board-row {
+    display: flex;
+    flex-direction: row;
+    height: 10vh;
+}
+
+.square {
+    width: 10vh;
+}
+
+.black {
+    background-color: black;
+}

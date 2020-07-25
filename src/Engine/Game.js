@@ -1,6 +1,5 @@
 import React from 'react';
 import {King, Queen, Bishop, Knight, Rook, Pawn} from './Pieces'
-import ReactComponent from 'react';
 import Board from './Board'
 
 
@@ -13,68 +12,65 @@ import Board from './Board'
 class Game extends React.Component {
     constructor(props) {
         super(props);
+        let whitePieces = [
+            new Rook({row: 0, column: 1, color: "white"}),
+            new Knight({row: 0, column: 2, color: "white"}),
+            new Bishop({row: 0, column: 3, color: "white"}),
+            new Queen({row: 0, column: 4, color: "white"}),
+            new King({row: 0, column: 5, color: "white"}),
+            new Bishop({row: 0, column: 6, color: "white"}),
+            new Knight({row: 0, column: 7, color: "white"}),
+            new Rook({row: 0, column: 8, color: "white"}),
+            new Pawn({row: 1, column: 1, color: "white"}),
+            new Pawn({row: 1, column: 2, color: "white"}),
+            new Pawn({row: 1, column: 3, color: "white"}),
+            new Pawn({row: 1, column: 4, color: "white"}),
+            new Pawn({row: 1, column: 5, color: "white"}),
+            new Pawn({row: 1, column: 6, color: "white"}),
+            new Pawn({row: 1, column: 7, color: "white"}),
+            new Pawn({row: 1, column: 8, color: "white"}),
+        ];
+        let blackPieces = [
+            new Rook({row: 7, column: 1, color: "black"}),
+            new Knight({row: 7, column: 2, color: "black"}),
+            new Bishop({row: 7, column: 3, color: "black"}),
+            new Queen({row: 7, column: 4, color: "black"}),
+            new King({row: 7, column: 5, color: "black"}),
+            new Bishop({row: 7, column: 6, color: "black"}),
+            new Knight({row: 7, column: 7, color: "black"}),
+            new Rook({row: 7, column: 8, color: "black"}),
+            new Pawn({row: 6, column: 1, color: "black"}),
+            new Pawn({row: 6, column: 2, color: "black"}),
+            new Pawn({row: 6, column: 3, color: "black"}),
+            new Pawn({row: 6, column: 4, color: "black"}),
+            new Pawn({row: 6, column: 5, color: "black"}),
+            new Pawn({row: 6, column: 6, color: "black"}),
+            new Pawn({row: 6, column: 7, color: "black"}),
+            new Pawn({row: 6, column: 8, color: "black"}),
+        ];
         this.state = {
-            whitePieces: {
-                aRook: new Rook({row: 1, column: 1, color: "white"}),
-                bKnight: new Knight({row: 1, column: 2, color: "white"}),
-                cBishop: new Bishop({row: 1, column: 3, color: "white"}),
-                queen: new Queen({row: 1, column: 4, color: "white"}),
-                king: new King({row: 1, column: 5, color: "white"}),
-                fBishop: new Bishop({row: 1, column: 6, color: "white"}),
-                gKnight: new Knight({row: 1, column: 7, color: "white"}),
-                hRook: new Rook({row: 1, column: 8, color: "white"}),
-                aPawn: new Pawn({row: 2, column: 1, color: "white"}),
-                bPawn: new Pawn({row: 2, column: 2, color: "white"}),
-                cPawn: new Pawn({row: 2, column: 3, color: "white"}),
-                dPawn: new Pawn({row: 2, column: 4, color: "white"}),
-                ePawn: new Pawn({row: 2, column: 5, color: "white"}),
-                fPawn: new Pawn({row: 2, column: 6, color: "white"}),
-                gPawn: new Pawn({row: 2, column: 7, color: "white"}),
-                hPawn: new Pawn({row: 2, column: 8, color: "white"}),
-            },
-            blackPieces: {
-                aRook: new Rook({row: 8, column: 1, color: "black"}),
-                bKnight: new Knight({row: 8, column: 2, color: "black"}),
-                cBishop: new Bishop({row: 8, column: 3, color: "black"}),
-                queen: new Queen({row: 8, column: 4, color: "black"}),
-                king: new King({row: 8, column: 5, color: "black"}),
-                fBishop: new Bishop({row: 8, column: 6, color: "black"}),
-                gKnight: new Knight({row: 8, column: 7, color: "black"}),
-                hRook: new Rook({row: 8, column: 8, color: "black"}),
-                aPawn: new Pawn({row: 7, column: 1, color: "black"}),
-                bPawn: new Pawn({row: 7, column: 2, color: "black"}),
-                cPawn: new Pawn({row: 7, column: 3, color: "black"}),
-                dPawn: new Pawn({row: 7, column: 4, color: "black"}),
-                ePawn: new Pawn({row: 7, column: 5, color: "black"}),
-                fPawn: new Pawn({row: 7, column: 6, color: "black"}),
-                gPawn: new Pawn({row: 7, column: 7, color: "black"}),
-                hPawn: new Pawn({row: 7, column: 8, color: "black"}),
-            },
+            whitePieces: whitePieces,
+            blackPieces: blackPieces,            
+            whiteToMove: true,
             timeline: [{
                 boardState: [
-                    [blackPieces.aRook,blackPieces.bKnight,blackPieces.cBishop,blackPieces.queen,blackPieces.king,blackPieces.fBishop,blackPieces.gKnight,blackPieces.hRook],
-                    [blackPieces.aPawn,blackPieces.bPawn,blackPieces.cPawn,blackPieces.dPawn,blackPieces.ePawn,blackPieces.fPawn,blackPieces.gPawn,blackPieces.hPawn],
+                    whitePieces.slice(0,8),
+                    whitePieces.slice(8,16),
                     [null,null,null,null,null,null,null,null],
                     [null,null,null,null,null,null,null,null],
                     [null,null,null,null,null,null,null,null],
                     [null,null,null,null,null,null,null,null],
-                    [null,null,null,null,null,null,null,null],
-                    [null,null,null,null,null,null,null,null],
-                    [whitePieces.aPawn,whitePieces.bPawn,whitePieces.cPawn,whitePieces.dPawn,whitePieces.ePawn,whitePieces.fPawn,whitePieces.gPawn,whitePieces.hPawn],
-                    [whitePieces.aRook,whitePieces.bKnight,whitePieces.cBishop,whitePieces.queen,whitePieces.king,whitePieces.fBishop,whitePieces.gKnight,whitePieces.hRook]
-                ],
+                    blackPieces.slice(8,16),
+                    blackPieces.slice(0,8)],
                 whiteToMove: true
             }],
-            whiteToMove: true
         }
     }
 
     render() {
         return (
             <div>
-                <Board >
-                    boardState={timeline.boardState}
-                </Board>
+                <Board boardState={this.state.timeline[0].boardState}></Board>
             </div>
         )
     }    
