@@ -1,23 +1,120 @@
 class Piece {
     constructor(props) {
-        this.row = props.row
-        this.column = props.column
-        this.color = props.color
+        this.row = props.row;
+        this.column = props.column;
+        this.color = props.color;
+    }
+}
+
+class King extends Piece {
+    constructor(props){
+        super(props);
+        this.type = "king";
+        this.moveDirections = [
+            [1,0],
+            [1,1],
+            [0,1],
+            [-1,1],
+            [-1,0],
+            [-1,-1],
+            [0,-1],
+            [1,-1]
+        ]
+        this.captureDirections = this.moveDirections;
+        this.multistep = false;
+    }
+}
+
+class Queen extends Piece {
+    constructor(props){
+        super(props);
+        this.type = "queen";
+        this.moveDirections = [
+            [1,0],
+            [1,1],
+            [0,1],
+            [-1,1],
+            [-1,0],
+            [-1,-1],
+            [0,-1],
+            [1,-1]
+        ]
+        this.captureDirections = this.moveDirections;
+        this.multistep = true;
+    }
+}
+
+class Bishop extends Piece {
+    constructor(props){
+        super(props);
+        this.type = "bishop";
+        this.moveDirections = [
+            [1,1],
+            [-1,1],
+            [-1,-1],
+            [1,-1]
+        ]
+        this.captureDirections = this.moveDirections;
+        this.multistep = true;
+    }
+}
+
+class Rook extends Piece {
+    constructor(props){
+        super(props);
+        this.type = "rook";
+        this.moveDirections = [
+            [1,0],
+            [0,1],
+            [-1,0],
+            [0,-1]
+        ]
+        this.captureDirections = this.moveDirections;
+        this.multistep = true;
+    }
+}
+
+class Pawn extends Piece {
+    constructor(props){
+        super(props);
+        this.type = "pawn";
+        if (this.color = "black") {
+            this.moveDirections = [
+                [-1,0]
+            ]
+            this.captureDirections = [
+                [-1,1],
+                [-1,-1]
+            ]
+        }
+        if (this.color = "white") {
+            this.moveDirections = [
+                [1,0]
+            ]
+            this.captureDirections = [
+                [1,1],
+                [1,-1]
+            ]
+        }
+        this.multistep = false;
     }
 }
 
 class Knight extends Piece {
-    moveTo(row,column) {
-        isLegalMove = false
-        legalMoves = [
-            [this.row + 2, this.column + 1],
-            [this.row + 2, this.column - 1],
-            [this.row + 1, this.column + 2],
-            ]
+    constructor(props){
+        super(props);
+        this.type = "knight";
+        this.moveDirections = [
+            [1,2],
+            [1,-2],
+            [-1,2],
+            [-1,-2],
+            [2,1],
+            [2,-1],
+            [-2,1],
+            [-2,-1]
+        ]
+        this.captureDirections = this.moveDirections;
+        this.multistep = false;
     }
-}
-
-function squareIsOnBoard(row,column) {
-    if ((row <= 7 || row >= 0) && (column <= 0 || column >= 7)) {}
-
 }
