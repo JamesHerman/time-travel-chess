@@ -12,6 +12,11 @@
     width: 10vh;
 }
 
+
 .black {
     background-color: black;
+}
+
+.selected {
+    background-color: mediumseagreen;
 }

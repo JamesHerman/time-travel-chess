@@ -1,6 +1,6 @@
 import React from 'react'
 import './Board.css'
-
+//Renders board ui
 class Board extends React.Component {
     render() {
         return (
@@ -31,19 +31,29 @@ class Board extends React.Component {
         )
     }
     renderSquare(row,column) {
-        let piece = this.props.boardState[row][column];
+        const piece = this.props.boardState[row][column];
         let color = "white";
         if ((row % 2 === 0 && column % 2 === 0)||(row % 2 === 1 && column % 2 === 1)) {
             color = "black"
         } 
+        let className = "square " + color;
         if (piece) {
+            if (piece === this.props.selectedPiece){
+                className = "square " + color + " selected";
+            }
             return(
-                <div className={"square " + color}>{piece.color + " " + piece.type}</div>
+                <div 
+                    className={className}
+                    onClick={() => this.props.onClick(row,column)}
+                >{piece.color + " " + piece.type}</div>
             )
         }
         else{
             return(
-                <div className={"square " + color}></div>
+                <div 
+                    className={className}
+                    onClick={() => this.props.onClick(row,column)}
+                />
             )
         }
     }

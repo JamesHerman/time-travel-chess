@@ -4,6 +4,11 @@ class Piece {
         this.column = props.column;
         this.color = props.color;
     }
+
+    movedTo(row,column) {
+        this.row = row;
+        this.column = column;
+    }
 }
 
 export class King extends Piece {
