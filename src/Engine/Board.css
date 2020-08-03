@@ -1,5 +1,9 @@
-.board {
-    border: 3px solid lightslategray
+.white-border {
+    border: 6px solid white
+}
+
+.black-border {
+    border: 6px solid black;
 }
 
 .board-row {
@@ -19,4 +23,8 @@
 
 .selected {
     background-color: mediumseagreen;
+}
+
+.legalMove {
+    background-color: thistle;
 }

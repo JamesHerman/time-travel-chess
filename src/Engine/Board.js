@@ -4,7 +4,7 @@ import './Board.css'
 class Board extends React.Component {
     render() {
         return (
-            <div className = "board">
+            <div className = {this.props.activePlayer + "-border board"}>
                 {this.renderRow(7)}
                 {this.renderRow(6)}
                 {this.renderRow(5)}
@@ -32,11 +32,21 @@ class Board extends React.Component {
     }
     renderSquare(row,column) {
         const piece = this.props.boardState[row][column];
+
         let color = "white";
         if ((row % 2 === 0 && column % 2 === 0)||(row % 2 === 1 && column % 2 === 1)) {
             color = "black"
         } 
         let className = "square " + color;
+        
+        if (this.props.selectedPiece && this.props.isActivePlayerTurn) {
+            for (const space of this.props.legalMoves) {
+                if (space[0] === row && space[1] === column) {
+                    className = "square " + color + " legalMove";
+                }
+            }
+        }
+
         if (piece) {
             if (piece === this.props.selectedPiece){
                 className = "square " + color + " selected";

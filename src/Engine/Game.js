@@ -84,6 +84,16 @@ class Game extends React.Component {
         const clickedPiece = boardState[row][column];
         const selectedPiece = this.state.selectedPiece;
         const moves = tempTimeline[this.state.activeTurn].moves;
+        const isActivePlayerTurn = tempTimeline[this.state.activeTurn].whiteToMove === this.state.whiteToMove;
+        const legalMoves = selectedPiece.piece ? selectedPiece.piece.legalMoves(boardState,selectedPiece.row,selectedPiece.column) : null
+        let isLegalMove = false;
+        if (legalMoves) {
+            for (const space of legalMoves) {
+                if (space[0] === row && space[1] === column) {
+                    isLegalMove = true;
+                }
+            }
+        }
 
         //Select a clicked piece matching active player color
         if (clickedPiece && (clickedPiece.color === "white") === this.state.whiteToMove) {
@@ -91,12 +101,13 @@ class Game extends React.Component {
         }
 
         //move if a piece is selected
-        else if (selectedPiece.piece) {
+        else if (selectedPiece.piece && isActivePlayerTurn && isLegalMove) {
             let move = this.createMoveTo(row,column,selectedPiece)
             moves.push(move)
             this.executeMoves(this.state.activeTurn,tempTimeline)
 
 
+            //Update game state once a piece has moved
             this.setState({
                 timeline: tempTimeline,
                 turnNumber: tempTimeline.length - 1,
@@ -105,7 +116,7 @@ class Game extends React.Component {
                 selectedPiece: {
                     piece: null,
                     row: null,
-                    column: null
+                    column: null,
                 },
             })
         }
@@ -116,19 +127,25 @@ class Game extends React.Component {
             let turnMoves = tempTimeline[turn].moves;
             let boardBefore = tempTimeline[turn].boardState.map((row) => row.slice());
             let boardAfter = boardBefore.map((row) => row.slice());
-            turnMoves.forEach(function(move) {
-                if (boardBefore[move.startRow][move.startColumn] === move.piece) {
-                    boardBefore[move.startRow][move.startColumn] = null;
-                    if (boardAfter[move.startRow][move.startColumn] === move.piece) {
-                        boardAfter[move.startRow][move.startColumn] = null;
-                    }
-                    boardAfter[move.endRow][move.endColumn] = move.piece;
-                }
+            this.state.whitePieces.forEach(function(piece) {
+                piece.moved = false;
             })
+            this.state.blackPieces.forEach(function(piece) {
+                piece.moved = false;
+            })
+            for (const move of turnMoves) {
+                if (move.valid(boardBefore,boardAfter)) {
+                    boardAfter[move.startRow][move.startColumn] = null;
+                    boardAfter[move.endRow][move.endColumn] = move.piece;
+                    move.piece.moved = true;
+                }
+            }
+            //Update
             if (turn < this.state.turnNumber) {
                 tempTimeline[turn + 1].boardState = boardAfter;
             }
-            else {
+            //Add a new board state if either player moved on their current turn
+            else if (tempTimeline[turn].moves[0] || tempTimeline[turn - 1].moves[0]){
                 tempTimeline.push({
                     boardState: boardAfter,
                     whiteToMove: !this.state.whiteToMove,
@@ -164,8 +181,8 @@ class Game extends React.Component {
     
 
     backTurn() {
-        if (this.state.activeTurn > 1) {
-            const previousTurn = this.state.activeTurn - 2;
+        if (this.state.activeTurn > 0) {
+            const previousTurn = this.state.activeTurn - 1;
             this.setState({
                 activeTurn: previousTurn,
             })
@@ -173,25 +190,33 @@ class Game extends React.Component {
     }
 
     forwardTurn() {
-        if (this.state.activeTurn < this.state.turnNumber - 1) {
+        if (this.state.activeTurn < this.state.turnNumber) {
             this.setState({
-                activeTurn: this.state.activeTurn + 2,
+                activeTurn: this.state.activeTurn + 1,
             })
         }
     }
 
     render() {
         const boardState=this.state.timeline[this.state.activeTurn].boardState;
+        const activePlayer=this.state.whiteToMove ? 'white' : 'black';
+        const selectedPiece=this.state.selectedPiece;
         return (
             <div>
-                <Board 
+                Time Travel Chess ~{'\n'}
+                Turn: {this.state.activeTurn} &nbsp;
+                <Board
+                    activePlayer={activePlayer}
+                    isActivePlayerTurn={this.state.timeline[this.state.activeTurn].whiteToMove === this.state.whiteToMove}
                     boardState={boardState}
                     selectedPiece={this.state.selectedPiece.piece}
+                    legalMoves={selectedPiece.piece ? selectedPiece.piece.legalMoves(boardState,selectedPiece.row,selectedPiece.column) : null}
                     onClick={(row,column) => this.handleClick(row,column)}
                 />
                 <button onClick={() => this.backTurn()} value="Before">Before</button>
                 {this.state.timeline[this.state.activeTurn].whiteToMove ? ' White' : 'Black '} to move&nbsp;
                 <button onClick={() => this.forwardTurn()} value="After">After</button>
+                
             </div>
         )
     }    

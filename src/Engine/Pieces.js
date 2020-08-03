@@ -1,14 +1,35 @@
 class Piece {
     constructor(props) {
-        this.row = props.row;
-        this.column = props.column;
         this.color = props.color;
+        this.moved = false;
     }
 
-    movedTo(row,column) {
-        this.row = row;
-        this.column = column;
+    //Returns array of coordinates for legal moves
+    legalMoves(boardState, startRow, startColumn) {
+        let startSpace = [startRow, startColumn];
+        let moves = [];
+        for (const direction of this.moveDirections) {
+            let space = startSpace;
+            do {
+                space = nextSpace(space, direction);
+                if (Math.min(...space) >= 0 && Math.max(...space) <= 7) {
+                    let occupant = boardState[space[0]][space[1]];
+                    let color = occupant ? occupant.color : null;
+                    if ((!occupant || color !== this.color)){
+                        moves.push(space)
+                    }
+                    if (occupant) {
+                        break;
+                    }
+                } else break;
+            } while (this.multistep)
+        }
+        return moves;
     }
+}
+
+function nextSpace(currentSpace, direction) {
+    return [currentSpace[0] + direction[0], currentSpace[1] + direction[1]]
 }
 
 export class King extends Piece {
