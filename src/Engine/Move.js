@@ -43,8 +43,8 @@ export default class Move {
         }
         //For pieces that multistep (Bishop, Rook & Queen), check that path to end square is clear
         if (this.piece.multistep) {
-            let stepRow = this.vector[0]/Math.abs(this.vector[0]); //+1, -1, or 0
-            let stepColumn = this.vector[1]/Math.abs(this.vector[1]); //+1, -1, or 0
+            let stepRow = this.vector[0] ? this.vector[0]/Math.abs(this.vector[0]) : 0; //+1, -1, or 0
+            let stepColumn = this.vector[1] ? this.vector[1]/Math.abs(this.vector[1]) : 0; //+1, -1, or 0
             let checkRow = this.startRow + stepRow;
             let checkColumn = this.startColumn + stepColumn;
             let checkSquare = boardState[checkRow][checkColumn];
