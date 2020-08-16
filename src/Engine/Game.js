@@ -1,7 +1,10 @@
 import React from 'react';
 import {King, Queen, Bishop, Knight, Rook, Pawn} from './Pieces'
-import Board from './Board'
+import Timeline from './Timeline'
+import Board from './Board';
 import Move from './Move';
+import Movelist from './Movelist';
+import './Game.css';
 
 
 /* Controls turn order, displays boards & UI elements
@@ -14,65 +17,47 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         //Definining pieces early so they can be used when setting initial state
-        let pieceLocations = {
-            black: {
-                king: [[7,4]],
-                queen: [[7,3]],
-                bishop: {queenside: [[7,2]], kingside: [[7,5]]},
-                knight: {queenside: [[7,1]], kingside: [[7,6]]},
-                rook:{queenside: [[7,0]], kingside: [[7,7]]},
-                pawn: {a: [[6,0]], b: [[6,1]], c: [[6,2]], d: [[6,3]], e:[[6,4]], f:[[6,5]], g:[[6,6]], h: [[6,7]]}
-            },
-            white: {
-                king: [[0,4]],
-                queen: [[0,3]],
-                bishop: {queenside: [[0,2]], kingside: [[0,5]]},
-                knight: {queenside: [[0,1]], kingside: [[0,6]]},
-                rook:{queenside: [[0,0]], kingside: [[0,7]]},
-                pawn: {a: [[1,0]], b: [[1,1]], c: [[1,2]], d: [[1,3]], e:[[1,4]], f:[[1,5]], g:[[1,6]], h: [[1,7]]}
-            },
-        }
         let whitePieces = [
-            new Rook({location: pieceLocations.white.rook.queenside, color: "white"}),
-            new Knight({location: pieceLocations.white.knight.queenside, color: "white"}),
-            new Bishop({location: pieceLocations.white.bishop.queenside, color: "white"}),
-            new Queen({location: pieceLocations.white.queen, color: "white"}),
-            new King({location: pieceLocations.white.king, color: "white"}),
-            new Bishop({location: pieceLocations.white.bishop.kingside, color: "white"}),
-            new Knight({location: pieceLocations.white.knight.kingside, color: "white"}),
-            new Rook({location: pieceLocations.white.rook.kingside, color: "white"}),
-            new Pawn({location: pieceLocations.white.pawn.a, color: "white"}),
-            new Pawn({location: pieceLocations.white.pawn.b, color: "white"}),
-            new Pawn({location: pieceLocations.white.pawn.c, color: "white"}),
-            new Pawn({location: pieceLocations.white.pawn.d, color: "white"}),
-            new Pawn({location: pieceLocations.white.pawn.e, color: "white"}),
-            new Pawn({location: pieceLocations.white.pawn.f, color: "white"}),
-            new Pawn({location: pieceLocations.white.pawn.g, color: "white"}),
-            new Pawn({location: pieceLocations.white.pawn.h, color: "white"}),
+            new Rook({color: "white"}),
+            new Knight({color: "white"}),
+            new Bishop({color: "white"}),
+            new Queen({color: "white"}),
+            new King({color: "white"}),
+            new Bishop({color: "white"}),
+            new Knight({color: "white"}),
+            new Rook({color: "white"}),
+            new Pawn({color: "white"}),
+            new Pawn({color: "white"}),
+            new Pawn({color: "white"}),
+            new Pawn({color: "white"}),
+            new Pawn({color: "white"}),
+            new Pawn({color: "white"}),
+            new Pawn({color: "white"}),
+            new Pawn({color: "white"}),
         ];
         let blackPieces = [
-            new Rook({location: pieceLocations.black.rook.queenside, color: "black"}),
-            new Knight({location: pieceLocations.black.knight.queenside, color: "black"}),
-            new Bishop({location: pieceLocations.black.bishop.queenside, color: "black"}),
-            new Queen({location: pieceLocations.black.queen, color: "black"}),
-            new King({location: pieceLocations.black.king, color: "black"}),
-            new Bishop({location: pieceLocations.black.bishop.kingside, color: "black"}),
-            new Knight({location: pieceLocations.black.knight.kingside, color: "black"}),
-            new Rook({location: pieceLocations.black.rook.kingside, color: "black"}),
-            new Pawn({location: pieceLocations.black.pawn.a, color: "black"}),
-            new Pawn({location: pieceLocations.black.pawn.b, color: "black"}),
-            new Pawn({location: pieceLocations.black.pawn.c, color: "black"}),
-            new Pawn({location: pieceLocations.black.pawn.d, color: "black"}),
-            new Pawn({location: pieceLocations.black.pawn.e, color: "black"}),
-            new Pawn({location: pieceLocations.black.pawn.f, color: "black"}),
-            new Pawn({location: pieceLocations.black.pawn.g, color: "black"}),
-            new Pawn({location: pieceLocations.black.pawn.h, color: "black"}),
+            new Rook({color: "black"}),
+            new Knight({color: "black"}),
+            new Bishop({color: "black"}),
+            new Queen({color: "black"}),
+            new King({color: "black"}),
+            new Bishop({color: "black"}),
+            new Knight({color: "black"}),
+            new Rook({color: "black"}),
+            new Pawn({color: "black"}),
+            new Pawn({color: "black"}),
+            new Pawn({color: "black"}),
+            new Pawn({color: "black"}),
+            new Pawn({color: "black"}),
+            new Pawn({color: "black"}),
+            new Pawn({color: "black"}),
+            new Pawn({color: "black"}),
         ];
         this.state = {
             whiteToMove: true,
             checkOnTurn: null,
-            turnNumber: 0,
-            activeTurn: 0,
+            turnNumber: 1,
+            activeTurn: 1,
             whitePieces: whitePieces,
             blackPieces: blackPieces,
             selectedPiece: {
@@ -80,7 +65,7 @@ class Game extends React.Component {
                 row: null,
                 column: null,
             },
-            timeline: { // Each property of timeline is an array with index = turn number. ie: timeline.moves[5] is a list of moves made on turn 
+            timeline: new Timeline({ // Each property of timeline is an array with index = turn number. ie: timeline.moves[5] is a list of moves made on turn 5
                 boardState: [[
                     whitePieces.slice(0,8),
                     whitePieces.slice(8,16),
@@ -89,13 +74,20 @@ class Game extends React.Component {
                     [null,null,null,null,null,null,null,null],
                     [null,null,null,null,null,null,null,null],
                     blackPieces.slice(8,16),
+                    blackPieces.slice(0,8)],
+                    [whitePieces.slice(0,8),
+                    whitePieces.slice(8,16),
+                    [null,null,null,null,null,null,null,null],
+                    [null,null,null,null,null,null,null,null],
+                    [null,null,null,null,null,null,null,null],
+                    [null,null,null,null,null,null,null,null],
+                    blackPieces.slice(8,16),
                     blackPieces.slice(0,8)]],
-                whiteToMove: [true],
-                moves: [[]],
-                whiteInCheck: [false],
-                blackInCheck: [false],
-                pieceLocations: pieceLocations
-            },
+                whiteToMove: [false,true],
+                moves: [[],[]],
+                whiteInCheck: [false,false],
+                blackInCheck: [false,false],
+            }),
         }
     }
 
@@ -106,7 +98,6 @@ class Game extends React.Component {
         const boardState = timeline.boardState[activeTurn];
         const clickedPiece = boardState[row][column];
         const selectedPiece = this.state.selectedPiece;
-        const moves = timeline.moves[activeTurn];
         const isActivePlayerTurn = timeline.whiteToMove[activeTurn] === this.state.whiteToMove;
         const legalMoves = selectedPiece.piece ? selectedPiece.piece.legalMoves(boardState,selectedPiece.row,selectedPiece.column) : null
         let isLegalMove = false;
@@ -125,46 +116,22 @@ class Game extends React.Component {
 
         //move if a piece is selected
         else if (selectedPiece.piece && isActivePlayerTurn && isLegalMove) {
-            let move = this.createMoveTo(row,column,selectedPiece)
+            let move = this.createMoveTo(row,column,selectedPiece,this.state.turnNumber)
             const activeTurn = this.state.activeTurn;
-            let tempTimeline = this.timelineAfterMove(activeTurn,timeline,move)
-            let turnCounter = 0;
-            let moveIntoCheck = false;
-            let isCheck = false;
+            let tempTimeline = timeline.timelineAfterMove(activeTurn,move,this.state.whitePieces,this.state.blackPieces)
             let whiteActive = this.state.whiteToMove;
-            for (turnCounter = 0; turnCounter < tempTimeline.boardState.length; turnCounter++) {
-                let whiteInCheck = tempTimeline.whiteInCheck[turnCounter];
-                let blackInCheck = tempTimeline.blackInCheck[turnCounter];
-                let whiteToMove = tempTimeline.whiteToMove[turnCounter];
-                if (turnCounter > activeTurn) {
-                    if ((whiteInCheck && whiteActive&& !whiteToMove) || (blackInCheck && !whiteActive && whiteToMove)){
-                        moveIntoCheck = true;
-                        break;
-                    }
-                    if((whiteInCheck && !whiteToMove) || (blackInCheck && whiteToMove)) {
-                        turnCounter = turnCounter - 1;
-                        isCheck = true;
-                        break;
-                    } else if ((whiteInCheck || blackInCheck) && turnCounter === tempTimeline.boardState.length - 1) {
-                        isCheck = true;
-                        break;
-                    }
-                }
-            }
-            if (turnCounter === tempTimeline.boardState.length) {
-                turnCounter--;
-            }
-            if (moveIntoCheck) {
-                alert("You cannot move into check. This move would put your king in check on turn " + turnCounter);
-                moves.pop()
+            let firstCheck = tempTimeline.firstCheck();
+            
+            if (firstCheck[0] === (whiteActive?'white':'black')) {
+                alert("You cannot move into check. This move would put you into check on turn " + firstCheck[1]);
             } 
             //Update game state once a piece has moved
-            else if (isCheck && !moveIntoCheck) {
+            else if (firstCheck[0]) {
                 this.setState({
                     timeline: tempTimeline,
-                    checkOnTurn: turnCounter,
+                    checkOnTurn: firstCheck[1],
                     turnNumber: tempTimeline.boardState.length - 1,
-                    activeTurn: turnCounter,
+                    activeTurn: firstCheck[1],
                     whiteToMove: !this.state.whiteToMove,
                     selectedPiece: {
                         piece: null,
@@ -173,12 +140,12 @@ class Game extends React.Component {
                     },
                 })
             }
-            else if (!moveIntoCheck){
+            else {
                 this.setState({
                     timeline: tempTimeline,
                     checkOnTurn: null,
                     turnNumber: tempTimeline.boardState.length - 1,
-                    activeTurn: tempTimeline.boardState.length - 1,
+                    activeTurn: (this.state.whiteToMove === tempTimeline.whiteToMove[tempTimeline.whiteToMove.length - 1]) ? tempTimeline.boardState.length - 2 : tempTimeline.boardState.length - 1,
                     whiteToMove: !this.state.whiteToMove,
                     selectedPiece: {
                         piece: null,
@@ -190,64 +157,14 @@ class Game extends React.Component {
         }
     }
 
-    timelineAfterMove(startTurn,timeline,move) {        
-        let blackKing = this.state.blackPieces[4];
-        let whiteKing = this.state.whitePieces[4];
-        let boardStates = timeline.boardState.slice();
-        let blackInCheck = timeline.blackInCheck.slice();
-        let whiteInCheck = timeline.whiteInCheck.slice();
-        let whiteToMove = timeline.whiteToMove.slice();
-        let moves = timeline.moves.slice();
-        moves[startTurn].push(move);
-        let tempTimeline = {
-            boardState: boardStates,
-            moves: moves,
-            whiteToMove: whiteToMove,
-            whiteInCheck: whiteInCheck,
-            blackInCheck: blackInCheck,
-        }
-        for (let turn = startTurn; turn <= this.state.turnNumber; turn++) {
-            let boardBefore = boardStates[turn].map((row) => row.slice());
-            let boardAfter = boardBefore.map((row) => row.slice());
-            this.state.whitePieces.forEach(function(piece) {
-                piece.moved = false;
-            })
-            this.state.blackPieces.forEach(function(piece) {
-                piece.moved = false;
-            })
-            for (const move of moves[turn]) {
-                if (move.valid(boardBefore,boardAfter)) {
-                    boardAfter[move.startRow][move.startColumn] = null;
-                    boardAfter[move.endRow][move.endColumn] = move.piece;
-                    if ((whiteToMove[turn] && !whiteKing.inCheck(boardAfter))||(!whiteToMove[turn] && !blackKing.inCheck(boardAfter))) {
-                        move.piece.moved = true;
-                    }
-                    else {
-                        boardAfter[move.startRow][move.startColumn] = move.piece;
-                        boardAfter[move.endRow][move.endColumn] = null;
-                    }
-                }
-            }
-            
-            //Update
-            if (turn <= this.state.turnNumber || moves[turn][0] || moves[turn-1][0]) {
-                boardStates[turn + 1] = boardAfter;
-                whiteToMove[turn + 1] = turn % 2 === 1;
-                if (moves[turn + 1] === undefined) {
-                    moves[turn + 1] = [];
-                }
-            }
-            if (turn <= boardStates.length) {
-                whiteInCheck[turn + 1] = whiteKing.inCheck(boardAfter);
-                blackInCheck[turn + 1] = blackKing.inCheck(boardAfter);
-            }
-        }
-        return tempTimeline;
-    }
+
+
+    
 
     //Creates a new move using the selected piece and a clicked row and column
-    createMoveTo(row,column,selectedPiece) {
+    createMoveTo(row,column,selectedPiece,turnNumber) {
         let move = new Move({
+            turnNumber: turnNumber,
             startRow: selectedPiece.row,
             startColumn: selectedPiece.column,
             endRow: row,
@@ -256,6 +173,8 @@ class Game extends React.Component {
         })
         return move;
     }
+
+
 
     //Selects a clicked piece
     selectPiece(clickedPiece, row, column) {
@@ -293,27 +212,48 @@ class Game extends React.Component {
         }
     }
 
+    goToTurn(turnNumber) {
+        if (this.state.checkOnTurn) {
+            alert("You cannot time travel while in check") 
+        }
+        else {
+            this.setState({
+                activeTurn: turnNumber
+            })
+        }
+    }
+
     render() {
-        const boardState=this.state.timeline.boardState[this.state.activeTurn];
-        const activePlayer=this.state.whiteToMove ? 'white' : 'black';
-        const selectedPiece=this.state.selectedPiece;
+        const activeTurn = this.state.activeTurn;
+        const turnNumber = this.state.turnNumber;
+        const moveList = this.state.timeline.moves;
+        const boardState = this.state.timeline.boardState[this.state.activeTurn];
+        const activePlayer = this.state.whiteToMove ? 'white' : 'black';
+        const selectedPiece = this.state.selectedPiece;
         const whiteToMove = this.state.timeline.whiteToMove[this.state.activeTurn];
         return (
-            <div>
-                Time Travel Chess ~{'\n'}
-                Turn: {this.state.activeTurn} &nbsp;
-                <Board
-                    activePlayer={activePlayer}
-                    isActivePlayerTurn={whiteToMove === this.state.whiteToMove}
-                    boardState={boardState}
-                    selectedPiece={this.state.selectedPiece.piece}
-                    legalMoves={selectedPiece.piece ? selectedPiece.piece.legalMoves(boardState,selectedPiece.row,selectedPiece.column) : null}
-                    onClick={(row,column) => this.handleClick(row,column)}
-                />
-                <button onClick={() => this.backTurn()} value="Before">Before</button>
-                {whiteToMove ? ' White' : 'Black '} to move&nbsp;
-                {(this.state.activeTurn < this.state.turnNumber) ? <button onClick={() => this.forwardTurn()} value="After">After</button> : null}
-                {this.state.blackPieces[4].inCheck(boardState) ? "Check" : "No Check"}         
+            <div className={"game " + activePlayer}>
+                <div>
+                    <div className="row-flex">
+                        <div>
+                        <Board
+                            activePlayer={activePlayer}
+                            isActivePlayerTurn={whiteToMove === (activePlayer === 'white')}
+                            boardState={boardState}
+                            selectedPiece={selectedPiece.piece}
+                            legalMoves={selectedPiece.piece ? selectedPiece.piece.legalMoves(boardState,selectedPiece.row,selectedPiece.column) : null}
+                            onClick={(row,column) => this.handleClick(row,column)}
+                        />
+                        {(activeTurn > 0) ? <button onClick={() => this.backTurn()} value="Before">Before</button> : <button onClick={() => this.backTurn()} className="disabled" value="Before">Before</button>}
+                        {(activeTurn < turnNumber) ? <button onClick={() => this.forwardTurn()} value="After">After</button> : <button onClick={() => this.forwardTurn()}  className="disabled" value="After">After</button>}
+                    </div>
+                    <Movelist
+                        activeTurn={activeTurn}
+                        allMoves = {moveList}
+                        onClick={(turnNumber) => this.goToTurn(turnNumber)}
+                    />
+                    </div>
+                </div>
             </div>
         )
     }    

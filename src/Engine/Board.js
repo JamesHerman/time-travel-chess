@@ -13,6 +13,7 @@ class Board extends React.Component {
                 {this.renderRow(2)}
                 {this.renderRow(1)}
                 {this.renderRow(0)}
+                {this.props.activePlayer === 'white' ? this.props.isActivePlayerTurn ? 'White' : 'Black' : this.props.isActivePlayerTurn ? 'Black' : 'White'} to move&nbsp;
             </div>
         )
     }
@@ -55,7 +56,7 @@ class Board extends React.Component {
                 <div 
                     className={className}
                     onClick={() => this.props.onClick(row,column)}
-                >{piece.color + " " + piece.type}</div>
+                ><img className = "piece" src={piece.image} alt={piece.color + " " + piece.type}></img></div>
             )
         }
         else{

@@ -1,9 +1,22 @@
+import blackkingimg from './svg/black-king.svg';
+import blackknightimg from './svg/black-knight.svg';
+import blackqueenimg from './svg/black-queen.svg';
+import blackbishopimg from './svg/black-bishop.svg';
+import blackrookimg from './svg/black-rook.svg';
+import blackpawnimg from './svg/black-pawn.svg';
+import whitekingimg from './svg/white-king.svg';
+import whiteknightimg from './svg/white-knight.svg';
+import whitequeenimg from './svg/white-queen.svg';
+import whitebishopimg from './svg/white-bishop.svg';
+import whiterookimg from './svg/white-rook.svg';
+import whitepawnimg from './svg/white-pawn.svg';
+
+
 class Piece {
     constructor(props) {
         this.color = props.color;
-        this.location = props.location;
-        this.tempLocation = [this.location[0].slice()];
         this.moved = false;
+        this.image = blackkingimg;
     }
 
     getLocation(boardState) {
@@ -51,6 +64,7 @@ function nextSpace(currentSpace, direction) {
 export class King extends Piece {
     constructor(props){
         super(props);
+        this.abbreviation = 'K';
         this.type = "king";
         this.moveDirections = [
             [1,0],
@@ -64,6 +78,12 @@ export class King extends Piece {
         ]
         this.captureDirections = this.moveDirections;
         this.multistep = false;
+        if (this.color === "black") {
+            this.image = blackkingimg;
+        }
+        else {
+            this.image = whitekingimg;
+        }
     }
      
     inCheck(boardState) {
@@ -90,6 +110,7 @@ export class King extends Piece {
 export class Queen extends Piece {
     constructor(props){
         super(props);
+        this.abbreviation = 'Q';
         this.type = "queen";
         this.moveDirections = [
             [1,0],
@@ -103,12 +124,19 @@ export class Queen extends Piece {
         ]
         this.captureDirections = this.moveDirections;
         this.multistep = true;
+        if (this.color === "black") {
+            this.image = blackqueenimg;
+        }
+        else {
+            this.image = whitequeenimg;
+        }
     }
 }
 
 export class Bishop extends Piece {
     constructor(props){
         super(props);
+        this.abbreviation = 'B';
         this.type = "bishop";
         this.moveDirections = [
             [1,1],
@@ -118,12 +146,19 @@ export class Bishop extends Piece {
         ]
         this.captureDirections = this.moveDirections;
         this.multistep = true;
+        if (this.color === "black") {
+            this.image = blackbishopimg;
+        }
+        else {
+            this.image = whitebishopimg;
+        }
     }
 }
 
 export class Rook extends Piece {
     constructor(props){
         super(props);
+        this.abbreviation = 'R';
         this.type = "rook";
         this.moveDirections = [
             [1,0],
@@ -133,12 +168,19 @@ export class Rook extends Piece {
         ]
         this.captureDirections = this.moveDirections;
         this.multistep = true;
+        if (this.color === "black") {
+            this.image = blackrookimg;
+        }
+        else {
+            this.image = whiterookimg;
+        }
     }
 }
 
 export class Pawn extends Piece {
     constructor(props){
         super(props);
+        this.abbreviation = '';
         this.type = "pawn";
         if (this.color === "black") {
             this.moveDirections = [
@@ -159,6 +201,12 @@ export class Pawn extends Piece {
             ]
         }
         this.multistep = false;
+        if (this.color === "black") {
+            this.image = blackpawnimg;
+        }
+        else {
+            this.image = whitepawnimg;
+        }
     }
     
     legalMoves(boardState, startRow, startColumn) {
@@ -208,6 +256,7 @@ export class Pawn extends Piece {
 export class Knight extends Piece {
     constructor(props){
         super(props);
+        this.abbreviation = 'N';
         this.type = "knight";
         this.moveDirections = [
             [1,2],
@@ -221,5 +270,11 @@ export class Knight extends Piece {
         ]
         this.captureDirections = this.moveDirections;
         this.multistep = false;
+        if (this.color === "black") {
+            this.image = blackknightimg;
+        }
+        else {
+            this.image = whiteknightimg;
+        }
     }
 }
