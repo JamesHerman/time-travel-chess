@@ -245,6 +245,7 @@ class Game extends React.Component {
                         <div>
                             <Board
                                 isActivePlayerTurn={whiteToMove === (activePlayer === 'white')}
+                                activePlayer={activePlayer}
                                 size="full"
                                 boardState={activeBoardState}
                                 selectedPiece={selectedPiece}
