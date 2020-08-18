@@ -1,11 +1,21 @@
+.full {
+    height: 90vh;
+    width: 90vh;
+}
+
+.small {
+    height: 30vh;
+    width: 30vh;
+}
+
 .board-row {
     display: flex;
     flex-direction: row;
-    height: 10vh;
+    height: 12.5%;
 }
 
 .square {
-    width: 10vh;
+    width: 12.5%;
 }
 
 

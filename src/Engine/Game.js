@@ -55,16 +55,13 @@ class Game extends React.Component {
         ];
         this.state = {
             whiteToMove: true,
-            checkOnTurn: null,
+            check: false,
+            checkmate: false,
             turnNumber: 1,
             activeTurn: 1,
             whitePieces: whitePieces,
             blackPieces: blackPieces,
-            selectedPiece: {
-                piece: null,
-                row: null,
-                column: null,
-            },
+            selectedPiece: null,
             timeline: new Timeline({ // Each property of timeline is an array with index = turn number. ie: timeline.moves[5] is a list of moves made on turn 5
                 boardState: [[
                     whitePieces.slice(0,8),
@@ -92,84 +89,97 @@ class Game extends React.Component {
     }
 
     handleClick(row,column) {
-        //Timeline: temporary array to store changes to board state before commiting them to game state.
-        const timeline = this.state.timeline;
-        const activeTurn = this.state.activeTurn;
-        const boardState = timeline.boardState[activeTurn];
-        const clickedPiece = boardState[row][column];
-        const selectedPiece = this.state.selectedPiece;
-        const isActivePlayerTurn = timeline.whiteToMove[activeTurn] === this.state.whiteToMove;
-        const legalMoves = selectedPiece.piece ? selectedPiece.piece.legalMoves(boardState,selectedPiece.row,selectedPiece.column) : null
-        let isLegalMove = false;
-        if (legalMoves) {
-            for (const space of legalMoves) {
-                if (space[0] === row && space[1] === column) {
-                    isLegalMove = true;
+        if (!this.state.checkmate) {
+            const timeline = this.state.timeline;
+            const activeTurn = this.state.activeTurn;
+            const boardState = timeline.boardState[activeTurn];
+            const clickedPiece = boardState[row][column];
+            const selectedPiece = this.state.selectedPiece;
+            const isActivePlayerTurn = timeline.whiteToMove[activeTurn] === this.state.whiteToMove;
+            const legalMoves = selectedPiece ? selectedPiece.safeMoves(timeline,activeTurn) : null
+            let isLegalMove = false;
+            if (legalMoves) {
+                for (const space of legalMoves) {
+                    if (space[0] === row && space[1] === column) {
+                        isLegalMove = true;
+                    }
                 }
             }
-        }
 
-        //Select a clicked piece matching active player color
-        if (clickedPiece && (clickedPiece.color === "white") === this.state.whiteToMove) {
-            this.selectPiece(clickedPiece,row,column);
-        }
-
-        //move if a piece is selected
-        else if (selectedPiece.piece && isActivePlayerTurn && isLegalMove) {
-            let move = this.createMoveTo(row,column,selectedPiece,this.state.turnNumber)
-            const activeTurn = this.state.activeTurn;
-            let tempTimeline = timeline.timelineAfterMove(activeTurn,move,this.state.whitePieces,this.state.blackPieces)
-            let whiteActive = this.state.whiteToMove;
-            let firstCheck = tempTimeline.firstCheck();
-            
-            if (firstCheck[0] === (whiteActive?'white':'black')) {
-                alert("You cannot move into check. This move would put you into check on turn " + firstCheck[1]);
-            } 
-            //Update game state once a piece has moved
-            else if (firstCheck[0]) {
-                this.setState({
-                    timeline: tempTimeline,
-                    checkOnTurn: firstCheck[1],
-                    turnNumber: tempTimeline.boardState.length - 1,
-                    activeTurn: firstCheck[1],
-                    whiteToMove: !this.state.whiteToMove,
-                    selectedPiece: {
-                        piece: null,
-                        row: null,
-                        column: null,
-                    },
-                })
+            //Select a clicked piece matching active player color
+            if (clickedPiece && (clickedPiece.color === "white") === this.state.whiteToMove) {
+                this.selectPiece(clickedPiece,row,column);
             }
-            else {
-                this.setState({
-                    timeline: tempTimeline,
-                    checkOnTurn: null,
-                    turnNumber: tempTimeline.boardState.length - 1,
-                    activeTurn: (this.state.whiteToMove === tempTimeline.whiteToMove[tempTimeline.whiteToMove.length - 1]) ? tempTimeline.boardState.length - 2 : tempTimeline.boardState.length - 1,
-                    whiteToMove: !this.state.whiteToMove,
-                    selectedPiece: {
-                        piece: null,
-                        row: null,
-                        column: null,
-                    },
-                })
+
+            //move if a piece is selected
+            else if (selectedPiece && isActivePlayerTurn && isLegalMove) {
+                let move = this.createMoveTo(row,column,selectedPiece,this.state.activeTurn)
+                let nextTimeline = timeline.addMove(move)
+                if (nextTimeline) {
+                    this.updateTimeline(nextTimeline);                
+                }
+                else {
+                    alert('This move would leave you in check')
+                }
             }
         }
     }
 
+    checkmateCheck(timeline, turn) {
+        if (timeline.whiteToMove[turn]) {
+            for (const piece of this.state.whitePieces) {
+                if (piece.safeMoves(timeline,turn)[0]) {
+                    return false;
+                }
+            }
+        } 
+        else {
+            for (const piece of this.state.blackPieces) {
+                if (piece.safeMoves(timeline,turn)[0]) {
+                    return false;
+                }
+            }
+        } 
+        alert((timeline.whiteToMove[turn]? 'White' : 'Black') + " in checkmate")
+        return true;
+    }
 
-
-    
+    updateTimeline(nextTimeline) {
+        let firstCheck = nextTimeline.firstCheck();
+                //Update game state once a piece has moved
+                if (firstCheck[0]) {
+                    this.setState({
+                        timeline: nextTimeline,
+                        check: true,
+                        checkmate: this.checkmateCheck(nextTimeline, firstCheck[1]),
+                        turnNumber: nextTimeline.boardState.length - 1,
+                        activeTurn: firstCheck[1],
+                        whiteToMove: !this.state.whiteToMove,
+                        selectedPiece: null,
+                    })
+                }
+                else{
+                    this.setState({
+                        timeline: nextTimeline,
+                        check: false,
+                        turnNumber: nextTimeline.boardState.length - 1,
+                        activeTurn: (this.state.whiteToMove === nextTimeline.whiteToMove[nextTimeline.whiteToMove.length - 1]) ? nextTimeline.boardState.length - 2 : nextTimeline.boardState.length - 1,
+                        whiteToMove: !this.state.whiteToMove,
+                        selectedPiece: null,
+                    })
+                }
+    }
 
     //Creates a new move using the selected piece and a clicked row and column
     createMoveTo(row,column,selectedPiece,turnNumber) {
+        let startLocation = selectedPiece.getLocation(this.state.timeline.boardState[turnNumber])
         let move = new Move({
             turnNumber: turnNumber,
-            startRow: selectedPiece.row,
-            startColumn: selectedPiece.column,
+            startRow: startLocation[0],
+            startColumn: startLocation[1],
             endRow: row,
             endColumn: column,
-            piece: selectedPiece.piece,
+            piece: selectedPiece,
         })
         return move;
     }
@@ -177,20 +187,16 @@ class Game extends React.Component {
 
 
     //Selects a clicked piece
-    selectPiece(clickedPiece, row, column) {
+    selectPiece(clickedPiece) {
         this.setState({
-            selectedPiece: {
-                piece: clickedPiece,
-                row: row,
-                column: column,
-            }
+            selectedPiece: clickedPiece
         })
     }
 
     
 
     backTurn() {
-        if (this.state.checkOnTurn) {
+        if (this.state.check) {
            alert("You cannot time travel while in check") 
         }
         else if (this.state.activeTurn > 0) {
@@ -202,7 +208,7 @@ class Game extends React.Component {
     }
 
     forwardTurn() {
-        if (this.state.checkOnTurn) {
+        if (this.state.check) {
             alert("You cannot time travel while in check") 
         }
         else if (this.state.activeTurn < this.state.turnNumber) {
@@ -213,7 +219,7 @@ class Game extends React.Component {
     }
 
     goToTurn(turnNumber) {
-        if (this.state.checkOnTurn) {
+        if (this.state.check) {
             alert("You cannot time travel while in check") 
         }
         else {
@@ -227,31 +233,41 @@ class Game extends React.Component {
         const activeTurn = this.state.activeTurn;
         const turnNumber = this.state.turnNumber;
         const moveList = this.state.timeline.moves;
-        const boardState = this.state.timeline.boardState[this.state.activeTurn];
+        const activeBoardState = this.state.timeline.boardState[activeTurn];
+        const finalBoardState = this.state.timeline.boardState[turnNumber]
         const activePlayer = this.state.whiteToMove ? 'white' : 'black';
         const selectedPiece = this.state.selectedPiece;
-        const whiteToMove = this.state.timeline.whiteToMove[this.state.activeTurn];
+        const whiteToMove = this.state.timeline.whiteToMove[activeTurn];
         return (
             <div className={"game " + activePlayer}>
                 <div>
                     <div className="row-flex">
                         <div>
-                        <Board
-                            activePlayer={activePlayer}
-                            isActivePlayerTurn={whiteToMove === (activePlayer === 'white')}
-                            boardState={boardState}
-                            selectedPiece={selectedPiece.piece}
-                            legalMoves={selectedPiece.piece ? selectedPiece.piece.legalMoves(boardState,selectedPiece.row,selectedPiece.column) : null}
-                            onClick={(row,column) => this.handleClick(row,column)}
-                        />
-                        {(activeTurn > 0) ? <button onClick={() => this.backTurn()} value="Before">Before</button> : <button onClick={() => this.backTurn()} className="disabled" value="Before">Before</button>}
-                        {(activeTurn < turnNumber) ? <button onClick={() => this.forwardTurn()} value="After">After</button> : <button onClick={() => this.forwardTurn()}  className="disabled" value="After">After</button>}
-                    </div>
-                    <Movelist
-                        activeTurn={activeTurn}
-                        allMoves = {moveList}
-                        onClick={(turnNumber) => this.goToTurn(turnNumber)}
-                    />
+                            <Board
+                                isActivePlayerTurn={whiteToMove === (activePlayer === 'white')}
+                                size="full"
+                                boardState={activeBoardState}
+                                selectedPiece={selectedPiece}
+                                legalMoves={selectedPiece ? selectedPiece.safeMoves(this.state.timeline,activeTurn) : null}
+                                onClick={(row,column) => this.handleClick(row,column)}
+                            />
+                            {(activeTurn > 0) ? <button onClick={() => this.backTurn()} value="Before">Before</button> : <button onClick={() => this.backTurn()} className="disabled" value="Before">Before</button>}
+                            {(activeTurn < turnNumber) ? <button onClick={() => this.forwardTurn()} value="After">After</button> : <button onClick={() => this.forwardTurn()}  className="disabled" value="After">After</button>}
+                        </div>
+                        <div>
+                            Final Board:
+                            <Board
+                                boardState={finalBoardState}
+                                size="small"
+                            />
+                            <Movelist
+                                activeTurn={activeTurn}
+                                activePlayer={activePlayer}
+                                allMoves = {moveList}
+                                onClick={(turnNumber) => this.goToTurn(turnNumber)}
+                            />
+                        </div>
+                        
                     </div>
                 </div>
             </div>

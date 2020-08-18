@@ -5,6 +5,7 @@ class Movelist extends React.Component {
     render() {
         const allMoves = this.props.allMoves;
         const activeTurn = this.props.activeTurn;
+        const activePlayer = this.props.activePlayer;
         const whiteTurns = [];
         const blackTurns = [];
         for (const [index,turnMoves] of allMoves.entries()) {
@@ -18,15 +19,19 @@ class Movelist extends React.Component {
         }
         return (
             <div>Moves
-                <div className = "flex-row">
-                    <ol>
-                        Black
-                        {blackTurns}
-                    </ol>
-                    <ol>
-                        White
-                        {whiteTurns}
-                    </ol>
+                <div className = "row-flex movelist">
+                    <div>
+                        <span className={activePlayer==='black' ? 'active title' : 'title'}>Black</span>
+                        <ol>
+                            {blackTurns}
+                        </ol>
+                    </div>
+                    <div>
+                        <span className={activePlayer==='white' ? 'active title' : 'title'}>White</span>
+                        <ol>
+                            {whiteTurns}
+                        </ol>
+                    </div>
                 </div>
             </div>
         )

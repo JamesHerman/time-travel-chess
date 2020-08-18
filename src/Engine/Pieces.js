@@ -10,6 +10,7 @@ import whitequeenimg from './svg/white-queen.svg';
 import whitebishopimg from './svg/white-bishop.svg';
 import whiterookimg from './svg/white-rook.svg';
 import whitepawnimg from './svg/white-pawn.svg';
+import Move from './Move';
 
 
 class Piece {
@@ -53,6 +54,36 @@ class Piece {
                 } else break;
             } while (this.multistep)
         }
+        return moves;
+    }
+
+    safeMoves(timeline, turn){
+        const board = timeline.boardState[turn];
+        const startLocation = this.getLocation(board);
+        for (const move of timeline.moves[turn]) {
+            if (move.piece === this && !move.invalid) {
+                return [];
+            }
+        }
+        if (!startLocation) {
+            return [];
+        }
+        const moves = [];
+        for (const space of this.legalMoves(board, startLocation[0], startLocation[1])) {
+            let move = new Move({
+                turnNumber: turn,
+                startRow: startLocation[0],
+                startColumn: startLocation[1],
+                endRow: space[0],
+                endColumn: space[1],
+                piece: this
+            })
+            let testTimeline = timeline.addMove(move);
+            if (testTimeline && testTimeline.firstCheck[0]!==this.color) {
+                moves.push(space);
+            }
+        }
+        timeline.evaluate()
         return moves;
     }
 }

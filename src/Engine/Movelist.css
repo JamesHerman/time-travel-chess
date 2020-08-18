@@ -1,8 +1,19 @@
-.flex-row{
+.row-flex{
     display: flex;
     flex-direction: row;
 }
 
+.movelist {
+    overflow: auto;
+    height: 50vh;
+}
+
+.title {
+    margin: 12px;
+    border-radius: 3px;
+}
+
 .active {
     background-color: rgba(70,255,120,.5);
+    border-radius: 3px;
 }

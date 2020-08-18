@@ -42,6 +42,5 @@ button::selection {
 .row-flex {
     display:flex;
     flex-direction: row;
-    width: 100vh;
     align-items: center;
 }

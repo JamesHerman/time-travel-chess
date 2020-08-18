@@ -4,17 +4,20 @@ import './Board.css'
 class Board extends React.Component {
     render() {
         return (
-            <div className = {this.props.activePlayer + "-border board"}>
-                {this.renderRow(7)}
-                {this.renderRow(6)}
-                {this.renderRow(5)}
-                {this.renderRow(4)}
-                {this.renderRow(3)}
-                {this.renderRow(2)}
-                {this.renderRow(1)}
-                {this.renderRow(0)}
+            <div>
+                <div className={this.props.size}>
+                    {this.renderRow(7)}
+                    {this.renderRow(6)}
+                    {this.renderRow(5)}
+                    {this.renderRow(4)}
+                    {this.renderRow(3)}
+                    {this.renderRow(2)}
+                    {this.renderRow(1)}
+                    {this.renderRow(0)}
+                </div>
                 {this.props.activePlayer === 'white' ? this.props.isActivePlayerTurn ? 'White' : 'Black' : this.props.isActivePlayerTurn ? 'Black' : 'White'} to move&nbsp;
             </div>
+            
         )
     }
     renderRow(index) {

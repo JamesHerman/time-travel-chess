@@ -28,13 +28,8 @@ export default class Move {
     }
 
     valid(boardState, nextTurnBoardState) {
-        //Check if piece is recorded as moved this turn
-        if (this.piece.moved) {
-            this.invalid = true;
-            return false;
-        }
-        //Check if piece is in correct starting position
-        if (!(boardState[this.startRow][this.startColumn] === this.piece)) {
+        //Check if piece is in correct starting position and has not already moved
+        if (!(boardState[this.startRow][this.startColumn] === this.piece) || !(nextTurnBoardState[this.startRow][this.startColumn] === this.piece)) {
             this.invalid = true;
             return false;
         }
@@ -42,7 +37,7 @@ export default class Move {
         this.capture = false;
         let endSquare = nextTurnBoardState[this.endRow][this.endColumn] //Null if square is empty
         if (endSquare) {
-            //Cannot move onto own color
+            //Cannot capture own color
             if (endSquare.color === this.piece.color) {
                 this.invalid = true;
                 return false;
@@ -50,9 +45,9 @@ export default class Move {
             //Account for pawn having different capture directions to move directions
             if (this.piece.type === "pawn") {
                 for (const direction of this.piece.moveDirections) {
-                    if (this.vector === direction) {
+                    if (this.vector[0] === direction[0] && this.vector[1] === direction[1]) {
                         this.invalid = true;
-                        return false
+                        return false;
                     }
                 }
             }

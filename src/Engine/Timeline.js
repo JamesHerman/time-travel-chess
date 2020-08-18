@@ -5,21 +5,36 @@ class Timeline {
         this.moves = props.moves;
         this.whiteInCheck = props.whiteInCheck;
         this.blackInCheck = props.blackInCheck;
+        for (const row of this.boardState[0]) {
+            for (const piece of row) {
+                if (piece && piece.type === 'king' && piece.color === 'black') {
+                    this.blackKing = piece;                    
+                }
+                if (piece && piece.type === 'king' && piece.color === 'white') {
+                    this.whiteKing = piece;
+                }
+            }
+        }
+    }
+
+    copy() {
+        return
     }
 
     snapshot(turn) {
         let snapshot = {
-            boardState: this.boardState[turn],
-            whiteToMove: this.whiteToMove,
-            moves: this.moves,
-            whiteInCheck: this.whiteInCheck,
-            blackInCheck: this.blackInCheck
+            boardState: this.boardState[turn].map((row) => row.slice()),
+            whiteToMove: this.whiteToMove[turn],
+            moves: this.moves[turn].slice(),
+            whiteInCheck: this.whiteInCheck[turn],
+            blackInCheck: this.blackInCheck[turn]
         }
         return snapshot;
     }
 
     firstCheck() {
-        for (let turn = 0; turn < this.whiteInCheck.length; turn++) {
+        const lastTurn = this.whiteInCheck.length - 1;
+        for (let turn = 0; turn <= lastTurn; turn++) {
             if (this.whiteInCheck[turn] && this.blackInCheck[turn]) {
                 return [this.whiteToMove[turn] ? 'black' : 'white', turn - 1];
             }
@@ -29,66 +44,76 @@ class Timeline {
             else if (this.blackInCheck[turn] && this.whiteToMove[turn]) {
                 return ['black', turn - 1];
             }
+            else if (this.blackInCheck[turn] && turn === lastTurn) {
+                return ['black', turn]
+            }
+            else if (this.whiteInCheck[turn] && turn === lastTurn) {
+                return ['white', turn]
+            }
         }
         return [null, null];
     }
 
-    timelineAfterMove(startTurn,move,whitePieces,blackPieces) {        
-        const blackKing = blackPieces[4];
-        const whiteKing = whitePieces[4];
-        const boardStates = this.boardState.slice();
-        const blackInCheck = this.blackInCheck.slice();
-        const whiteInCheck = this.whiteInCheck.slice();
-        const whiteToMove = this.whiteToMove.slice();
-        const moves = this.moves.slice();
-        const tempTimeline = new Timeline({
-            boardState: boardStates,
-            moves: moves,
-            whiteToMove: whiteToMove,
-            whiteInCheck: whiteInCheck,
-            blackInCheck: blackInCheck,
-        })
-        tempTimeline.moves[startTurn] = tempTimeline.moves[startTurn].concat(move);
+    addMove(move) {
+        const turnNumber = move.turnNumber
+        const activePlayer = this.snapshot(turnNumber).whiteToMove ? 'white' : 'black';
+        const nextTimeline = new Timeline({
+            boardState: this.boardState.slice(),
+            moves: this.moves.slice(),
+            whiteToMove: this.whiteToMove.slice(),
+            whiteInCheck: this.whiteInCheck.slice(),
+            blackInCheck: this.blackInCheck.slice(),
+        });
+        nextTimeline.moves[turnNumber] = nextTimeline.moves[turnNumber].concat(move);
+        nextTimeline.evaluate()
+        return (nextTimeline.firstCheck()[0] === activePlayer) ? null : nextTimeline;  
+    }
 
-        for (let turn = startTurn; turn <= move.turnNumber; turn++) {
-            let boardBefore = boardStates[turn].map((row) => row.slice());
-            let boardAfter = boardBefore.map((row) => row.slice());
-            whitePieces.forEach(function(piece) {
-                piece.moved = false;
-            })
-            blackPieces.forEach(function(piece) {
-                piece.moved = false;
-            })
-            for (const move of moves[turn]) {
-                if (move.valid(boardBefore,boardAfter)) {
-                    let capturedPiece = boardAfter[move.endRow][move.endColumn];
-                    boardAfter[move.startRow][move.startColumn] = null;
-                    boardAfter[move.endRow][move.endColumn] = move.piece;
-                    if ((whiteToMove[turn] && (!whiteKing.inCheck(boardAfter) || whiteKing.inCheck(boardBefore)))||(!whiteToMove[turn] && (!blackKing.inCheck(boardAfter) || blackKing.inCheck(boardBefore)))) {
-                        move.piece.moved = true;
-                    }
-                    else {
-                        move.invalid = true;
-                        boardAfter[move.startRow][move.startColumn] = move.piece;
-                        boardAfter[move.endRow][move.endColumn] = capturedPiece;
-                    }
+    evaluate() {
+        const lastTurn = this.boardState.length - 1;
+        for (let turn = 0; turn < lastTurn; turn++) {
+            let next = this.boardAfter(turn);
+            this.boardState[turn + 1] = next.boardState;
+            this.whiteInCheck[turn + 1] = next.whiteInCheck;
+            this.blackInCheck[turn + 1] = next.blackInCheck;
+        }
+        if (this.moves[lastTurn - 1][0] || this.moves[lastTurn][0]) {
+            let next = this.boardAfter(lastTurn);
+            this.boardState[lastTurn + 1] = next.boardState;
+            this.whiteInCheck[lastTurn + 1] = next.whiteInCheck;
+            this.blackInCheck[lastTurn + 1] = next.blackInCheck;
+            this.whiteToMove[lastTurn + 1] = lastTurn % 2 === 0;
+            this.moves[lastTurn + 1] = [];
+        }
+    }
+
+    boardAfter(turn) {
+        const snapshot = this.snapshot(turn);
+        const board = snapshot.boardState.map((row) => row.slice());
+        const whiteKing = this.whiteKing;
+        const blackKing = this.blackKing;
+        let nextBoard = board.map((row) => row.slice());
+        let whiteInCheck = snapshot.whiteInCheck;
+        let blackInCheck = snapshot.blackInCheck;
+        for (const move of snapshot.moves) {
+            if (move.valid(board,nextBoard)) {
+                let capturedPiece = nextBoard[move.endRow][move.endColumn];
+                nextBoard[move.startRow][move.startColumn] = null;
+                nextBoard[move.endRow][move.endColumn] = move.piece;
+                whiteInCheck = whiteKing.inCheck(nextBoard);
+                blackInCheck = blackKing.inCheck(nextBoard);
+                if ((snapshot.whiteToMove && (whiteInCheck && !snapshot.whiteInCheck))||(!snapshot.whiteToMove && (blackInCheck && !snapshot.blackInCheck))) {
+                    move.invalid = true;
+                    nextBoard[move.startRow][move.startColumn] = move.piece;
+                    nextBoard[move.endRow][move.endColumn] = capturedPiece;
                 }
-            }
-            
-            //Update
-            if (turn < move.turnNumber || moves[turn][0] || moves[turn-1][0]) {
-                boardStates[turn + 1] = boardAfter;
-                whiteToMove[turn + 1] = turn % 2 === 0;
-                if (moves[turn + 1] === undefined) {
-                    moves[turn + 1] = [];
-                }
-            }
-            if (turn <= boardStates.length) {
-                whiteInCheck[turn + 1] = whiteKing.inCheck(boardAfter);
-                blackInCheck[turn + 1] = blackKing.inCheck(boardAfter);
             }
         }
-        return tempTimeline;
+        return {
+            boardState: nextBoard,
+            whiteInCheck: whiteInCheck,
+            blackInCheck: blackInCheck
+        }
     }
 }
 
