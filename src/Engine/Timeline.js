@@ -32,7 +32,7 @@ class Timeline {
         return snapshot;
     }
 
-    firstCheck() {
+    firstCheck() { //Identifies first player in unresolved check in the timeline, and the turn on which they must move out of check. 
         const lastTurn = this.whiteInCheck.length - 1;
         for (let turn = 0; turn <= lastTurn; turn++) {
             if (this.whiteInCheck[turn] && this.blackInCheck[turn]) {
@@ -54,7 +54,7 @@ class Timeline {
         return [null, null];
     }
 
-    addMove(move) {
+    addMove(move) { //Returns a new timeline resulting from a move being added
         const turnNumber = move.turnNumber
         const activePlayer = this.snapshot(turnNumber).whiteToMove ? 'white' : 'black';
         const nextTimeline = new Timeline({
@@ -69,7 +69,7 @@ class Timeline {
         return (nextTimeline.firstCheck()[0] === activePlayer) ? null : nextTimeline;  
     }
 
-    evaluate() {
+    evaluate() { //Reevalutes the board states of a timeline after a move has been added
         const lastTurn = this.boardState.length - 1;
         for (let turn = 0; turn < lastTurn; turn++) {
             let next = this.boardAfter(turn);
@@ -87,7 +87,7 @@ class Timeline {
         }
     }
 
-    boardAfter(turn) {
+    boardAfter(turn) { //Executes the moves for turn, returning the board state after the moves are complete, and whether either player is in check.
         const snapshot = this.snapshot(turn);
         const board = snapshot.boardState.map((row) => row.slice());
         const whiteKing = this.whiteKing;

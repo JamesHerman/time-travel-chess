@@ -6,30 +6,39 @@ class Movelist extends React.Component {
         const allMoves = this.props.allMoves;
         const activeTurn = this.props.activeTurn;
         const activePlayer = this.props.activePlayer;
-        const whiteTurns = [];
-        const blackTurns = [];
-        for (const [index,turnMoves] of allMoves.entries()) {
-            let className = (activeTurn === index) ? "active" : null; 
+        const turns = []
+        for (let index = 0; index <= allMoves.length; index++) {
+            let classNameWhite = ((activeTurn === index) ? "active " : "") + "half-column no-top-margin"; 
+            let classNameBlack = ((activeTurn === index - 1) ? "active " : "") + "half-column no-top-margin"; 
             if (index % 2 === 1) {
-                whiteTurns.push (<li className={className} onClick={() => this.props.onClick(index)} key={index}>{turnMovelist(turnMoves)}</li>)
-            }
-            if (index % 2 === 0) {
-                blackTurns.push (<li className={className} onClick={() => this.props.onClick(index)} key={index}>{turnMovelist(turnMoves)}</li>)
+                turns.push (
+                    <li key={index} className="thin-border-top">
+                        <div className={"row-flex align-top"}>
+                            <div className={classNameBlack} onClick={()=>this.props.onClick(index-1)}>
+                                {turnMovelist(allMoves[index-1])}
+                            </div>
+                            <div className={classNameWhite} onClick={()=>this.props.onClick(index)}>
+                                {turnMovelist(allMoves[index])}
+                            </div>
+                        </div>
+                    </li>
+                )
             }
         }
         return (
             <div>Moves
-                <div className = "row-flex movelist">
+                <div className = "movelist">
                     <div>
-                        <span className={activePlayer==='black' ? 'active title' : 'title'}>Black</span>
-                        <ol>
-                            {blackTurns}
-                        </ol>
-                    </div>
-                    <div>
-                        <span className={activePlayer==='white' ? 'active title' : 'title'}>White</span>
-                        <ol>
-                            {whiteTurns}
+                        <ol className="no-margins">
+                            <div className='row-flex'>
+                                <div className={(activePlayer==='black' ? 'active ' : '') + 'half-column'}>
+                                    Black
+                                </div>
+                                <div className={(activePlayer==='white' ? 'active ' : '') + 'half-column'}>
+                                    White
+                                </div>
+                            </div>
+                            {turns}
                         </ol>
                     </div>
                 </div>
@@ -39,14 +48,18 @@ class Movelist extends React.Component {
 }
 
 function turnMovelist(turnMoves) {
-    const items = []
-    for (const [index, move] of turnMoves.entries()) {
-        items.push(<li key={index}>{move.invalid ? <s>{move.notation()}</s>: move.notation()}</li>)            
+    if(!turnMoves) {
+        return;
     }
-    return (
-        <ul>
-            {items}
-        </ul>
+    else if(turnMoves[0]) {
+        const items = []
+        for (const [index, move] of turnMoves.entries()) {
+            items.push(<div key={index}>{move.invalid ? <s>{move.notation()}</s>: move.notation()}</div>)            
+        }
+        return items;
+    }
+    else return (
+        "-"
     )
 }
 

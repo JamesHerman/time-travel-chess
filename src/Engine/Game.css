@@ -11,19 +11,31 @@
 .game.white {
     background-color: white;
     color: black;
+    border-color: black;
 }
 
 .game.black {
     background-color: black;
     color: white;
+    border-color: white;
 }
 
-button {
+.half-column {
+    width: 50%;
+}
+
+.margin-left-5P{
+    margin-left: 5%;
+}
+
+.width-33P {
+    width: 33.333%;
+}
+
+.button {
     height: 5vh;
-    border: none;
-    border-radius: 8px;
+    background-color: inherit;
     color: inherit;
-    background-color: rgba(124,124,124,.5);
     font-size: calc(10px + 2vmin);
 }
 
@@ -42,5 +54,4 @@ button::selection {
 .row-flex {
     display:flex;
     flex-direction: row;
-    align-items: center;
 }

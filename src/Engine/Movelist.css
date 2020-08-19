@@ -1,16 +1,18 @@
+.no-margins{
+    margin: 0px;
+}
 .row-flex{
     display: flex;
     flex-direction: row;
 }
 
+.thin-border-top {
+    border-top: 1px solid;
+}
+
 .movelist {
     overflow: auto;
     height: 50vh;
-}
-
-.title {
-    margin: 12px;
-    border-radius: 3px;
 }
 
 .active {

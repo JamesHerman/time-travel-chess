@@ -88,7 +88,7 @@ class Game extends React.Component {
         }
     }
 
-    handleClick(row,column) {
+    handleClick(row,column) {//Handles a click event on the main board
         if (!this.state.checkmate) {
             const timeline = this.state.timeline;
             const activeTurn = this.state.activeTurn;
@@ -125,7 +125,7 @@ class Game extends React.Component {
         }
     }
 
-    checkmateCheck(timeline, turn) {
+    checkmateCheck(timeline, turn) {//Tests all moves available to a player to see if there are any that do not lead to that player still being in check
         if (timeline.whiteToMove[turn]) {
             for (const piece of this.state.whitePieces) {
                 if (piece.safeMoves(timeline,turn)[0]) {
@@ -144,9 +144,8 @@ class Game extends React.Component {
         return true;
     }
 
-    updateTimeline(nextTimeline) {
+    updateTimeline(nextTimeline) {//Updates the game state with nextTimeline as the new state
         let firstCheck = nextTimeline.firstCheck();
-                //Update game state once a piece has moved
                 if (firstCheck[0]) {
                     this.setState({
                         timeline: nextTimeline,
@@ -170,8 +169,7 @@ class Game extends React.Component {
                 }
     }
 
-    //Creates a new move using the selected piece and a clicked row and column
-    createMoveTo(row,column,selectedPiece,turnNumber) {
+    createMoveTo(row,column,selectedPiece,turnNumber) {//Creates a new move to [row,column] using the selected piece
         let startLocation = selectedPiece.getLocation(this.state.timeline.boardState[turnNumber])
         let move = new Move({
             turnNumber: turnNumber,
@@ -186,8 +184,7 @@ class Game extends React.Component {
 
 
 
-    //Selects a clicked piece
-    selectPiece(clickedPiece) {
+    selectPiece(clickedPiece) {//Selects a clicked piece
         this.setState({
             selectedPiece: clickedPiece
         })
@@ -195,7 +192,7 @@ class Game extends React.Component {
 
     
 
-    backTurn() {
+    backTurn() {//Decrements active turn by 1
         if (this.state.check) {
            alert("You cannot time travel while in check") 
         }
@@ -207,7 +204,7 @@ class Game extends React.Component {
         }
     }
 
-    forwardTurn() {
+    forwardTurn() {//Increments active turn by 1
         if (this.state.check) {
             alert("You cannot time travel while in check") 
         }
@@ -218,7 +215,7 @@ class Game extends React.Component {
         }
     }
 
-    goToTurn(turnNumber) {
+    goToTurn(turnNumber) {//Jumps the active turn to turnNumber
         if (this.state.check) {
             alert("You cannot time travel while in check") 
         }
@@ -230,50 +227,79 @@ class Game extends React.Component {
     }
 
     render() {
+        const timeline = this.state.timeline
         const activeTurn = this.state.activeTurn;
         const turnNumber = this.state.turnNumber;
-        const moveList = this.state.timeline.moves;
-        const activeBoardState = this.state.timeline.boardState[activeTurn];
-        const finalBoardState = this.state.timeline.boardState[turnNumber]
+        const moveList = timeline.moves;
+        const activeBoardState = timeline.boardState[activeTurn];
+        const finalBoardState = timeline.boardState[turnNumber]
         const activePlayer = this.state.whiteToMove ? 'white' : 'black';
         const selectedPiece = this.state.selectedPiece;
-        const whiteToMove = this.state.timeline.whiteToMove[activeTurn];
+        const whiteToMove = timeline.whiteToMove[activeTurn];
+        const legalMoves = selectedPiece ? selectedPiece.safeMoves(timeline,activeTurn) : null;
         return (
             <div className={"game " + activePlayer}>
-                <div>
                     <div className="row-flex">
                         <div>
                             <Board
-                                isActivePlayerTurn={whiteToMove === (activePlayer === 'white')}
+                                playerToMove={whiteToMove ? 'white': 'black'}
                                 activePlayer={activePlayer}
                                 size="full"
                                 boardState={activeBoardState}
                                 selectedPiece={selectedPiece}
-                                legalMoves={selectedPiece ? selectedPiece.safeMoves(this.state.timeline,activeTurn) : null}
+                                legalMoves={legalMoves}
                                 onClick={(row,column) => this.handleClick(row,column)}
                             />
-                            {(activeTurn > 0) ? <button onClick={() => this.backTurn()} value="Before">Before</button> : <button onClick={() => this.backTurn()} className="disabled" value="Before">Before</button>}
-                            {(activeTurn < turnNumber) ? <button onClick={() => this.forwardTurn()} value="After">After</button> : <button onClick={() => this.forwardTurn()}  className="disabled" value="After">After</button>}
+                            <div className="row-flex">
+                                {this.renderTimeTravelButton('back')}
+                                {this.renderConfirmButton()}
+                                {this.renderTimeTravelButton('forward')}
+                            </div>
                         </div>
-                        <div>
+                        <div className="margin-left-5P">
                             Final Board:
                             <Board
                                 boardState={finalBoardState}
                                 size="small"
+                                onClick={()=>this.goToTurn((this.state.whiteToMove === timeline.whiteToMove[turnNumber])? turnNumber : turnNumber - 1)}
                             />
                             <Movelist
                                 activeTurn={activeTurn}
                                 activePlayer={activePlayer}
                                 allMoves = {moveList}
-                                onClick={(turnNumber) => this.goToTurn(turnNumber)}
+                                onClick={(turn) => this.goToTurn(turn)}
                             />
                         </div>
-                        
                     </div>
-                </div>
             </div>
         )
-    }    
+    }
+
+    renderConfirmButton() {
+        return(
+            <div className="width-33P"></div>
+        )
+    }
+
+    renderTimeTravelButton(direction) {
+        const activeTurn = this.state.activeTurn;
+        const turnNumber = this.state.turnNumber;
+        if (direction === 'forward') {
+            const condition = (activeTurn < turnNumber);
+            const className = 'forward button width-33P' + (condition?'':' disabled')
+            return(
+                <button onClick={()=>this.forwardTurn()} className={className}>&raquo;</button>
+            )
+        }
+        if (direction === 'back') {
+            const condition = (activeTurn > 0);
+            const className = 'back button width-33P' + (condition?'':' disabled')
+            return(
+                <button onClick={()=>this.backTurn()} className={className}>&laquo;</button>
+            )
+        }
+    }
+
 }
 
 export default Game;

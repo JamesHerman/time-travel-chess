@@ -15,7 +15,6 @@ class Board extends React.Component {
                     {this.renderRow(1)}
                     {this.renderRow(0)}
                 </div>
-                {this.props.activePlayer === 'white' ? this.props.isActivePlayerTurn ? 'White' : 'Black' : this.props.isActivePlayerTurn ? 'Black' : 'White'} to move&nbsp;
             </div>
             
         )
@@ -37,13 +36,15 @@ class Board extends React.Component {
     renderSquare(row,column) {
         const piece = this.props.boardState[row][column];
 
+        //Color black squares (Odd row and column or even row and column) black
         let color = "white";
         if ((row % 2 === 0 && column % 2 === 0)||(row % 2 === 1 && column % 2 === 1)) {
             color = "black"
         } 
         let className = "square " + color;
         
-        if (this.props.selectedPiece && this.props.isActivePlayerTurn) {
+        //Highlight legal moves of selected piece
+        if (this.props.selectedPiece && this.props.selectedPiece.color === this.props.playerToMove) {
             for (const space of this.props.legalMoves) {
                 if (space[0] === row && space[1] === column) {
                     className = "square " + color + " legalMove";
@@ -51,6 +52,7 @@ class Board extends React.Component {
             }
         }
 
+        //Generate JSX for the square
         if (piece) {
             if (piece === this.props.selectedPiece){
                 className = "square " + color + " selected";
