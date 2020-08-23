@@ -79,7 +79,7 @@ class Piece {
                 piece: this
             })
             let testTimeline = timeline.addMove(move);
-            if (testTimeline && testTimeline.firstCheck[0]!==this.color) {
+            if (!move.invalid && testTimeline && testTimeline.firstCheck[0]!==this.color) {
                 moves.push(space);
             }
         }

@@ -170,15 +170,16 @@ class Game extends React.Component {
     }
 
     createMoveTo(row,column,selectedPiece,turnNumber) {//Creates a new move to [row,column] using the selected piece
-        let startLocation = selectedPiece.getLocation(this.state.timeline.boardState[turnNumber])
-        let move = new Move({
+        const startLocation = selectedPiece.getLocation(this.state.timeline.boardState[turnNumber])
+        const moveParams = {
             turnNumber: turnNumber,
             startRow: startLocation[0],
             startColumn: startLocation[1],
             endRow: row,
             endColumn: column,
             piece: selectedPiece,
-        })
+        }
+        let move = new Move(moveParams)
         return move;
     }
 

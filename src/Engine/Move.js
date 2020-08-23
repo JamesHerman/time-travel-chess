@@ -16,14 +16,17 @@ export default class Move {
         this.vector = [this.endRow - this.startRow, this.endColumn - this.startColumn]
         this.invalid = false;
         this.capture = false;
+        this.check = false;
         this.notation = function() {
             let columns = ['a','b','c','d','e','f','g','h']
+            let notation = this.piece.abbreviation + columns[this.startColumn] + (this.startRow+1) + columns[this.endColumn] + (this.endRow + 1);
             if (this.capture) {
-                return this.piece.abbreviation + columns[this.startColumn] + (this.startRow+1) + 'x' + columns[this.endColumn] + (this.endRow + 1)
+                notation = this.piece.abbreviation + columns[this.startColumn] + (this.startRow+1) + 'x' + columns[this.endColumn] + (this.endRow + 1)
             }
-            else {
-                return this.piece.abbreviation + columns[this.startColumn] + (this.startRow+1) + columns[this.endColumn] + (this.endRow + 1)
+            if (this.check) {
+                notation = notation + "+"
             }
+            return notation;
         } 
     }
 
@@ -52,6 +55,19 @@ export default class Move {
                 }
             }
             this.capture = true;
+        }
+        if (this.piece.type === "pawn" && !endSquare) {
+            for (const direction of this.piece.captureDirections) {
+                if (this.vector[0] === direction[0] && this.vector[1] === direction[1]) {
+                    this.invalid = true;
+                    return false;
+                }
+            }
+            //Pawns can't jump
+            if ((this.vector[0] === 2 && boardState[this.endRow - 1][this.endColumn]) || (this.vector[0] === -2 && boardState[this.endRow + 1][this.endColumn])) {
+                this.invalid = true;
+                return false;
+            }
         }
         //For pieces that multistep (Bishop, Rook & Queen), check that path to end square is clear
         if (this.piece.multistep) {
