@@ -81,7 +81,7 @@ class Game extends React.Component {
                     blackPieces.slice(8,16),
                     blackPieces.slice(0,8)]],
                 whiteToMove: [false,true],
-                moves: [[],[]],
+                moves: [],
                 whiteInCheck: [false,false],
                 blackInCheck: [false,false],
             }),
@@ -95,7 +95,6 @@ class Game extends React.Component {
             const boardState = timeline.boardState[activeTurn];
             const clickedPiece = boardState[row][column];
             const selectedPiece = this.state.selectedPiece;
-            const isActivePlayerTurn = timeline.whiteToMove[activeTurn] === this.state.whiteToMove;
             const legalMoves = selectedPiece ? selectedPiece.safeMoves(timeline,activeTurn) : null
             let isLegalMove = false;
             if (legalMoves) {
@@ -112,7 +111,7 @@ class Game extends React.Component {
             }
 
             //move if a piece is selected
-            else if (selectedPiece && isActivePlayerTurn && isLegalMove) {
+            else if (selectedPiece && isLegalMove) {
                 let move = this.createMoveTo(row,column,selectedPiece,this.state.activeTurn)
                 let nextTimeline = timeline.addMove(move)
                 if (nextTimeline) {
@@ -126,7 +125,8 @@ class Game extends React.Component {
     }
 
     checkmateCheck(timeline, turn) {//Tests all moves available to a player to see if there are any that do not lead to that player still being in check
-        if (timeline.whiteToMove[turn]) {
+        timeline.evaluate()
+        if (timeline.moves[turn - 1].piece.color === "black") {
             for (const piece of this.state.whitePieces) {
                 if (piece.safeMoves(timeline,turn)[0]) {
                     return false;
@@ -140,7 +140,7 @@ class Game extends React.Component {
                 }
             }
         } 
-        alert((timeline.whiteToMove[turn]? 'White' : 'Black') + " in checkmate")
+        alert(timeline.moves[turn - 1].piece.color + " wins by Checkmate")
         return true;
     }
 
@@ -162,7 +162,7 @@ class Game extends React.Component {
                         timeline: nextTimeline,
                         check: false,
                         turnNumber: nextTimeline.boardState.length - 1,
-                        activeTurn: (this.state.whiteToMove === nextTimeline.whiteToMove[nextTimeline.whiteToMove.length - 1]) ? nextTimeline.boardState.length - 2 : nextTimeline.boardState.length - 1,
+                        activeTurn: nextTimeline.boardState.length - 1,
                         whiteToMove: !this.state.whiteToMove,
                         selectedPiece: null,
                     })
@@ -194,37 +194,62 @@ class Game extends React.Component {
     
 
     backTurn() {//Decrements active turn by 1
-        if (this.state.check) {
-           alert("You cannot time travel while in check") 
+        if (this.state.check && !this.state.checkmate) {
+            alert("You cannot time travel while in check") 
         }
-        else if (this.state.activeTurn > 0) {
-            const previousTurn = this.state.activeTurn - 1;
-            this.setState({
-                activeTurn: previousTurn,
-            })
+        else {
+            let turn = this.state.activeTurn - 1;
+            while (this.moveIsCheck(turn)) {
+                turn--;
+            }
+            if (turn >= 0) {
+                this.setState({
+                    activeTurn: turn,
+                })
+            }
         }
     }
 
     forwardTurn() {//Increments active turn by 1
-        if (this.state.check) {
+        if (this.state.check && !this.state.checkmate) {
             alert("You cannot time travel while in check") 
         }
-        else if (this.state.activeTurn < this.state.turnNumber) {
-            this.setState({
-                activeTurn: this.state.activeTurn + 1,
-            })
+        else {
+            let turn = this.state.activeTurn + 1;
+            while (this.moveIsCheck(turn)) {
+                turn++;
+            }
+            if (turn <= this.state.turnNumber) {
+                this.setState({
+                    activeTurn: turn,
+                })
+            }
         }
     }
 
     goToTurn(turnNumber) {//Jumps the active turn to turnNumber
-        if (this.state.check) {
+        if (this.state.check && !this.state.checkmate) {
             alert("You cannot time travel while in check") 
         }
         else {
+            let turn = turnNumber;
+            while (this.moveIsCheck(turn)) {
+                turn--;
+            }
             this.setState({
-                activeTurn: turnNumber
+                activeTurn: turn
             })
         }
+    }
+
+    moveIsCheck(turn) {
+        if (this.state.whiteToMove && this.state.timeline.blackInCheck[turn]) {
+            return true;
+        } 
+        if (!this.state.whiteToMove && this.state.timeline.whiteInCheck[turn]) {
+            return true;
+        }
+        return false;
     }
 
     render() {
@@ -236,14 +261,12 @@ class Game extends React.Component {
         const finalBoardState = timeline.boardState[turnNumber]
         const activePlayer = this.state.whiteToMove ? 'white' : 'black';
         const selectedPiece = this.state.selectedPiece;
-        const whiteToMove = timeline.whiteToMove[activeTurn];
         const legalMoves = selectedPiece ? selectedPiece.safeMoves(timeline,activeTurn) : null;
         return (
             <div className={"game " + activePlayer}>
                     <div className="row-flex">
                         <div>
                             <Board
-                                playerToMove={whiteToMove ? 'white': 'black'}
                                 activePlayer={activePlayer}
                                 size="full"
                                 boardState={activeBoardState}

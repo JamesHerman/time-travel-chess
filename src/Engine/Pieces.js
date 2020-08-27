@@ -60,11 +60,7 @@ class Piece {
     safeMoves(timeline, turn){
         const board = timeline.boardState[turn];
         const startLocation = this.getLocation(board);
-        for (const move of timeline.moves[turn]) {
-            if (move.piece === this && !move.invalid) {
-                return [];
-            }
-        }
+        timeline.evaluate()
         if (!startLocation) {
             return [];
         }
@@ -261,9 +257,6 @@ export class Pawn extends Piece {
                 if ((!occupant)){
                     moves.push(space)
                 }
-                if (occupant) {
-                    break;
-                }
             }
         }
         for (const direction of this.captureDirections) {
@@ -274,9 +267,6 @@ export class Pawn extends Piece {
                 let color = occupant ? occupant.color : null;
                 if ((color && color !== this.color)){
                     moves.push(space)
-                }
-                if (occupant) {
-                    break;
                 }
             }   
         }

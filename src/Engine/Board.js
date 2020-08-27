@@ -44,7 +44,7 @@ class Board extends React.Component {
         let className = "square " + color;
         
         //Highlight legal moves of selected piece
-        if (this.props.selectedPiece && this.props.selectedPiece.color === this.props.playerToMove) {
+        if (this.props.selectedPiece) {
             for (const space of this.props.legalMoves) {
                 if (space[0] === row && space[1] === column) {
                     className = "square " + color + " legalMove";

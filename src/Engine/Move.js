@@ -30,15 +30,15 @@ export default class Move {
         } 
     }
 
-    valid(boardState, nextTurnBoardState) {
+    valid(boardState, whiteKing, blackKing) {
         //Check if piece is in correct starting position and has not already moved
-        if (!(boardState[this.startRow][this.startColumn] === this.piece) || !(nextTurnBoardState[this.startRow][this.startColumn] === this.piece)) {
+        if (!(boardState[this.startRow][this.startColumn] === this.piece)) {
             this.invalid = true;
             return false;
         }
         //Check if end square is valid
         this.capture = false;
-        let endSquare = nextTurnBoardState[this.endRow][this.endColumn] //Null if square is empty
+        let endSquare = boardState[this.endRow][this.endColumn] //Null if square is empty
         if (endSquare) {
             //Cannot capture own color
             if (endSquare.color === this.piece.color) {
@@ -86,9 +86,24 @@ export default class Move {
                 checkSquare = boardState[checkRow][checkColumn];
             } 
         }
+        
+        const nextBoard = boardState.map((row) => row.slice());
+        nextBoard[this.startRow][this.startColumn] = null;
+        nextBoard[this.endRow][this.endColumn] = this.piece;
+        const whiteInCheck = whiteKing.inCheck(nextBoard);
+        const blackInCheck = blackKing.inCheck(nextBoard);
+        
+        if ((this.piece.color === "white" && whiteInCheck)||(this.piece.color === "black" && (blackInCheck))) {
+            this.invalid = true;
+            return false;
+        }
         //Move is assumed to be valid by default
         this.invalid = false;
-        return true;
+        return {
+            boardState:nextBoard, 
+            whiteInCheck:whiteInCheck,
+            blackInCheck:blackInCheck 
+        };
     }
 
     executeTurnMoves(snapshot) {
