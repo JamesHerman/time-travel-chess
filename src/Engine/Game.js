@@ -17,7 +17,8 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         //Definining pieces early so they can be used when setting initial state
-        let whitePieces = [
+        const pieces = {
+        white: [
             new Rook({color: "white"}),
             new Knight({color: "white"}),
             new Bishop({color: "white"}),
@@ -34,8 +35,8 @@ class Game extends React.Component {
             new Pawn({color: "white"}),
             new Pawn({color: "white"}),
             new Pawn({color: "white"}),
-        ];
-        let blackPieces = [
+        ],
+        black: [
             new Rook({color: "black"}),
             new Knight({color: "black"}),
             new Bishop({color: "black"}),
@@ -52,38 +53,17 @@ class Game extends React.Component {
             new Pawn({color: "black"}),
             new Pawn({color: "black"}),
             new Pawn({color: "black"}),
-        ];
+        ]};
         this.state = {
             whiteToMove: true,
             check: false,
             checkmate: false,
             turnNumber: 1,
             activeTurn: 1,
-            whitePieces: whitePieces,
-            blackPieces: blackPieces,
             selectedPiece: null,
             timeline: new Timeline({ // Each property of timeline is an array with index = turn number. ie: timeline.moves[5] is a list of moves made on turn 5
-                boardState: [[
-                    whitePieces.slice(0,8),
-                    whitePieces.slice(8,16),
-                    [null,null,null,null,null,null,null,null],
-                    [null,null,null,null,null,null,null,null],
-                    [null,null,null,null,null,null,null,null],
-                    [null,null,null,null,null,null,null,null],
-                    blackPieces.slice(8,16),
-                    blackPieces.slice(0,8)],
-                    [whitePieces.slice(0,8),
-                    whitePieces.slice(8,16),
-                    [null,null,null,null,null,null,null,null],
-                    [null,null,null,null,null,null,null,null],
-                    [null,null,null,null,null,null,null,null],
-                    [null,null,null,null,null,null,null,null],
-                    blackPieces.slice(8,16),
-                    blackPieces.slice(0,8)]],
-                whiteToMove: [false,true],
                 moves: [],
-                whiteInCheck: [false,false],
-                blackInCheck: [false,false],
+                pieces: pieces,
             }),
         }
     }
@@ -114,7 +94,7 @@ class Game extends React.Component {
             else if (selectedPiece && isLegalMove) {
                 let move = this.createMoveTo(row,column,selectedPiece,this.state.activeTurn)
                 let nextTimeline = timeline.addMove(move)
-                if (nextTimeline) {
+                if (nextTimeline.firstCheck[0] !== selectedPiece.color){
                     this.updateTimeline(nextTimeline);                
                 }
                 else {
@@ -124,33 +104,13 @@ class Game extends React.Component {
         }
     }
 
-    checkmateCheck(timeline, turn) {//Tests all moves available to a player to see if there are any that do not lead to that player still being in check
-        timeline.evaluate()
-        if (timeline.moves[turn - 1].piece.color === "black") {
-            for (const piece of this.state.whitePieces) {
-                if (piece.safeMoves(timeline,turn)[0]) {
-                    return false;
-                }
-            }
-        } 
-        else {
-            for (const piece of this.state.blackPieces) {
-                if (piece.safeMoves(timeline,turn)[0]) {
-                    return false;
-                }
-            }
-        } 
-        alert(timeline.moves[turn - 1].piece.color + " wins by Checkmate")
-        return true;
-    }
-
     updateTimeline(nextTimeline) {//Updates the game state with nextTimeline as the new state
         let firstCheck = nextTimeline.firstCheck();
                 if (firstCheck[0]) {
                     this.setState({
                         timeline: nextTimeline,
                         check: true,
-                        checkmate: this.checkmateCheck(nextTimeline, firstCheck[1]),
+                        checkmate: firstCheck[2],
                         turnNumber: nextTimeline.boardState.length - 1,
                         activeTurn: firstCheck[1],
                         whiteToMove: !this.state.whiteToMove,

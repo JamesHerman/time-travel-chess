@@ -1,19 +1,29 @@
 class Timeline {
     constructor (props) {
-        this.boardState = props.boardState;
+        this.pieces = props.pieces;
+        this.boardState = [[
+            this.pieces.white.slice(0,8),
+            this.pieces.white.slice(8,16),
+            [null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null],
+            this.pieces.black.slice(8,16),
+            this.pieces.black.slice(0,8)],
+            [this.pieces.white.slice(0,8),
+            this.pieces.white.slice(8,16),
+            [null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null],
+            this.pieces.black.slice(8,16),
+            this.pieces.black.slice(0,8)],];
         this.moves = props.moves;
-        this.whiteInCheck = props.whiteInCheck;
-        this.blackInCheck = props.blackInCheck;
-        for (const row of this.boardState[0]) {
-            for (const piece of row) {
-                if (piece && piece.type === 'king' && piece.color === 'black') {
-                    this.blackKing = piece;                    
-                }
-                if (piece && piece.type === 'king' && piece.color === 'white') {
-                    this.whiteKing = piece;
-                }
-            }
-        }
+        this.whiteInCheck = [false,false];
+        this.blackInCheck = [false,false];
+        this.blackKing = props.pieces.black[4];
+        this.whiteKing = props.pieces.white[4];
+        this.evaluate()
     }
 
     snapshot(turn) {
@@ -26,40 +36,67 @@ class Timeline {
         return snapshot;
     }
 
-    firstCheck() { //Identifies first player in unresolved check in the timeline, and the turn on which they must move out of check. 
+    firstCheck() { //Identifies first player in unresolved check in the timeline, turn on which they are in check, and whether it is checkmate. 
         const finalTurn = this.whiteInCheck.length - 1;
+        let color = null;
+        let checkTurn = null;
         for (let turn = 0; turn <= finalTurn; turn++) {
             if (this.whiteInCheck[turn] && this.blackInCheck[turn]) {
-                return [this.move[turn].piece.color ? 'black' : 'white', turn - 1];
+                color = this.move[turn].piece.color ? 'black' : 'white'
+                checkTurn = turn - 1;
+                break;
             }
             else if (this.blackInCheck[turn] && turn === finalTurn) {
-                return ['black', turn]
+                color = 'black';
+                checkTurn = turn;
+                break;
             }
             else if (this.whiteInCheck[turn] && turn === finalTurn) {
-                return ['white', turn]
+                color = 'white'
+                checkTurn = turn;
+                break;
             }
             else if (this.whiteInCheck[turn] && this.whiteInCheck[turn + 1]) {
-                return ['white', turn - 1];
+                color = 'white'
+                checkTurn = turn - 1;
+                break;
             }
             else if (this.blackInCheck[turn] && this.whiteInCheck[turn + 1]) {
-                return ['black', turn - 1];
+                color = 'black';
+                checkTurn = turn - 1;
+                break;
             }
         }
-        return [null, null];
+        let checkmate = false;
+        if (color) {
+            checkmate = true;
+            if (color === "white") {
+                for (const piece of this.pieces.white) {
+                    if (piece.safeMoves(this,checkTurn)[0]) {
+                        checkmate = false;
+                    }
+                }
+            } 
+            else {
+                for (const piece of this.pieces.black) {
+                    if (piece.safeMoves(this,checkTurn)[0]) {
+                        checkmate = false;
+                    }
+                }
+            }
+        }
+        return [color, checkTurn, checkmate];
     }
 
     addMove(move) { //Returns a new timeline resulting from a move being added, or null if the move would cause the player to be in check
         const turnNumber = move.turnNumber
-        const activePlayer = move.piece.color;
         const nextTimeline = new Timeline({
-            boardState: this.boardState.slice(),
+            pieces: this.pieces,
             moves: this.moves.slice(),
-            whiteInCheck: this.whiteInCheck.slice(),
-            blackInCheck: this.blackInCheck.slice(),
         });
         nextTimeline.moves.splice(turnNumber, 0, move);
         nextTimeline.evaluate();
-        return (nextTimeline.firstCheck()[0] === activePlayer) ? null : nextTimeline;  
+        return nextTimeline;  
     }
 
     evaluate() { //Reevalutes the board states of a timeline after a move has been added

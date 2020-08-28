@@ -87,6 +87,8 @@ export default class Move {
             } 
         }
         
+
+        //Create next board state and check for check
         const nextBoard = boardState.map((row) => row.slice());
         nextBoard[this.startRow][this.startColumn] = null;
         nextBoard[this.endRow][this.endColumn] = this.piece;

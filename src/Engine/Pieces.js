@@ -16,7 +16,6 @@ import Move from './Move';
 class Piece {
     constructor(props) {
         this.color = props.color;
-        this.moved = false;
         this.image = blackkingimg;
     }
 
@@ -116,6 +115,9 @@ export class King extends Piece {
     inCheck(boardState) {
         const location = this.getLocation(boardState)
         let rowCount = 0;
+        if (!location) {
+            return true;
+        }
         for (const row of boardState) {
             let column = 0;
             for (const piece of row) {
