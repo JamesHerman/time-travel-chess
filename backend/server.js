@@ -1,16 +1,17 @@
-const io = require('socket.io')(3030);
-const express = require('express');
-const path = require('path');
-
-const app = express();
-
-app.use(express.static(path.join(__dirname, '..', 'build')))
+const io = require('socket.io')
+    , express = require('express')
+    , path = require('path');
 
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 8000;
 }
-app.listen(port);
+const app = express()
+    , server = require('http').createServer(app)
+    , io = io.listen(server);
+app.use(express.static(path.join(__dirname, '..', 'build')))
+
+server.listen(port);
 
 io.on('connection', async (socket) => {
     socket.on('create', () => {
