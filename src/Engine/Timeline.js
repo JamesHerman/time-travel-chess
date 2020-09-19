@@ -58,12 +58,12 @@ class Timeline {
             }
             else if (this.whiteInCheck[turn] && this.whiteInCheck[turn + 1]) {
                 color = 'white'
-                checkTurn = turn - 1;
+                checkTurn = turn;
                 break;
             }
-            else if (this.blackInCheck[turn] && this.whiteInCheck[turn + 1]) {
+            else if (this.blackInCheck[turn] && this.blackInCheck[turn + 1]) {
                 color = 'black';
-                checkTurn = turn - 1;
+                checkTurn = turn;
                 break;
             }
         }
@@ -134,6 +134,15 @@ class Timeline {
             this.boardState[turn + 1] = next.boardState;
             this.whiteInCheck[turn + 1] = next.whiteInCheck;
             this.blackInCheck[turn + 1] = next.blackInCheck;
+        }
+    }
+
+    nextValidMove(turn) {
+        this.evaluate();
+        for (let i = turn; i < this.moves.length; i++) {
+            if (!this.moves[i].invalid) {
+                return this.moves[i];
+            }
         }
     }
 

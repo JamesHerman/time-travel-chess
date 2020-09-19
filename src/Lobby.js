@@ -30,6 +30,7 @@ class Lobby extends React.Component {
                 <span className={this.props.waiting?'':'inactive'} >{this.props.gameID? 'Waiting for another player. Game number: ' + this.props.gameID: ''}</span><br/>
                 <input className={this.props.waiting?'inactive':''} type="text" placeholder="Enter game number..." value={this.state.gameNumber} onChange={(event) => this.handleChange(event)}></input>
                 <button className={this.props.waiting?'inactive lobby-button':'lobby-button'} onClick={() => this.state.gameNumber !== '' ? this.props.join(this.state.gameNumber):null}>Join Game</button><br/>
+                <button className={this.props.waiting?'inactive lobby-button':'lobby-button'} onClick={() => this.props.singlePlayer()}>Single Player Game</button><br/>
             </div>
         )
     }

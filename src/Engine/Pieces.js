@@ -51,7 +51,13 @@ class Piece {
         const board = timeline.boardState[turn];
         const startLocation = this.getLocation(board);
         timeline.evaluate()
+        const nextValidMove = timeline.nextValidMove(turn);
         if (!startLocation) {
+            return [];
+        }
+        if (nextValidMove
+            &&(nextValidMove.piece === this 
+            ||(nextValidMove.endColumn===startLocation[1] && nextValidMove.endRow === startLocation[0]))){
             return [];
         }
         const moves = [];
@@ -141,6 +147,12 @@ export class King extends Piece {
         const board = timeline.boardState[turn];
         const startLocation = this.getLocation(board);
         timeline.evaluate()
+        const nextValidMove = timeline.nextValidMove(turn);
+        if (nextValidMove
+            &&(nextValidMove.piece === this 
+            ||(nextValidMove.endColumn===startLocation[1] && nextValidMove.endRow === startLocation[0]))){
+            return []
+        }
         if (!startLocation) {
             return [];
         }

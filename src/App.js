@@ -45,6 +45,15 @@ class App extends React.Component {
     socket.emit('join', {roomID: gameID})
   }
 
+  singlePlayerGame() {
+    this.state.socket.disconnect();
+    this.setState({
+      isWhitePlayer:true,
+      gameStarted:true,
+      singlePlayer:true
+    })
+  }
+
   render() {
     if(this.state.gameStarted) {
       return (
@@ -53,6 +62,7 @@ class App extends React.Component {
               <Game 
                 connection={this.state.socket}
                 playerColor={this.state.isWhitePlayer?'white':'black'}
+                singlePlayer={this.state.singlePlayer}
               />
             </div>
         </div>
@@ -67,6 +77,7 @@ class App extends React.Component {
                 join={(gameID) => this.joinGame(gameID)}
                 waiting={this.state.waiting}
                 gameID={this.state.gameID}
+                singlePlayer={()=> this.singlePlayerGame()}
               />
             </div>
         </div>

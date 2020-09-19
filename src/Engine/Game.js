@@ -98,7 +98,7 @@ class Game extends React.Component {
             //Select a clicked piece matching active player color
             if (clickedPiece 
                 && (clickedPiece.color === "white") === this.state.whiteToMove
-                && (clickedPiece.color === this.props.playerColor)
+                && (clickedPiece.color === this.props.playerColor || this.props.singlePlayer)
                 && !this.state.tentativeTimeline) {
                 this.setState({
                     selectedPiece: clickedPiece
@@ -171,8 +171,10 @@ class Game extends React.Component {
     }
 
     sendMove(moveParams) {
-        const move = JSON.stringify({move: moveParams})
-        this.props.connection.emit('move', move)
+        if(!this.props.singlePlayer) {
+            const move = JSON.stringify({move: moveParams})
+            this.props.connection.emit('move', move)
+        }
     }
 
     executeMove(moveParams) {
@@ -204,7 +206,7 @@ class Game extends React.Component {
         const move = new Move(moveParams);
         const nextTimeline = timeline.addMove(move);
         if (nextTimeline.firstCheck[0] !== move.piece.color){
-            if(move.piece.color === this.props.playerColor) {
+            if(move.piece.color === this.props.playerColor || this.props.singlePlayer) {
                 this.setState({
                     tentativeTimeline: nextTimeline,
                     tentativeMove: moveParams,
@@ -236,6 +238,7 @@ class Game extends React.Component {
             tentativeMove: undefined,
             activeTurn: this.state.timeline.boardState.length - 1,
         })
+        this.state.timeline.evaluate();
     }
 
     choosePromotion(type) {
@@ -272,8 +275,10 @@ class Game extends React.Component {
         }
         else {
             let turn = this.state.activeTurn - 1;
-            while (this.moveIsCheck(turn)) {
-                turn--;
+            if(!this.state.checkmate){
+                while (this.state.timeline.blackInCheck[turn] || this.state.timeline.whiteInCheck[turn]) {
+                    turn--;
+                }
             }
             if (turn >= 0) {
                 this.setState({
@@ -289,8 +294,10 @@ class Game extends React.Component {
         }
         else {
             let turn = this.state.activeTurn + 1;
-            while (this.moveIsCheck(turn)) {
-                turn++;
+            if(!this.state.checkmate){
+                while (this.state.timeline.blackInCheck[turn] || this.state.timeline.whiteInCheck[turn]) {
+                    turn++;
+                }
             }
             if (turn <= this.state.turnNumber) {
                 this.setState({
@@ -306,8 +313,10 @@ class Game extends React.Component {
         }
         else {
             let turn = turnNumber;
-            while (this.state.timeline.blackInCheck[turn] || this.state.timeline.whiteInCheck[turn]) {
-                turn--;
+            if(!this.state.checkmate){
+                while (this.state.timeline.blackInCheck[turn] || this.state.timeline.whiteInCheck[turn]) {
+                    turn--;
+                }
             }
             this.setState({
                 activeTurn: turn
