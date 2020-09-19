@@ -6,11 +6,11 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, '..', 'build')))
 
-app.listen(5000, ()=> {
-    console.log(
-        'server started on port 5000'
-    )
-})
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8000;
+}
+app.listen(port);
 
 io.on('connection', async (socket) => {
     console.log('connect ' + socket.id)
