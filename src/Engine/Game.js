@@ -373,12 +373,7 @@ class Game extends React.Component {
                                 legalMoves={legalMoves}
                                 onClick={(row,column) => this.handleClick(row,column)}
                             />
-                            <div className="row-flex">
-                                {this.renderTimeTravelButton('back')}
-                                {this.renderConfirmButton()}
-                                {this.renderRejectButton()}
-                                {this.renderTimeTravelButton('forward')}
-                            </div>
+                            {this.renderButtons()}
                         </div>
                         <div className="margin-left-5P-widescreen column-flex">
                             Final Board:
@@ -397,6 +392,28 @@ class Game extends React.Component {
                     </div>
             </div>
         )
+    }
+
+    renderButtons() {
+        if (!this.state.tentativeMove && (this.props.playerColor === (this.state.whiteToMove?'white':'black') || this.props.singlePlayer)){
+            return (
+                <div className="row-flex">
+                    {this.renderTimeTravelButton('back')}
+                    <div className="width-50P ">Your turn</div>
+                    {this.renderTimeTravelButton('forward')}
+                </div>
+            )
+        }
+        else {
+            return (
+                <div className="row-flex">
+                    {this.renderTimeTravelButton('back')}
+                    {this.renderConfirmButton()}
+                    {this.renderRejectButton()}
+                    {this.renderTimeTravelButton('forward')}
+                </div>
+            )
+        }
     }
 
     renderConfirmButton() {

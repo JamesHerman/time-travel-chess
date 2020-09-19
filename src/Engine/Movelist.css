@@ -10,9 +10,16 @@
     border-top: 1px solid;
 }
 
-.movelist {
-    overflow: auto;
-    height: 50vh;
+@media (min-aspect-ratio: 1/1) {
+    .movelist {
+        overflow: auto;
+        height: 50vh;
+    }
+}
+@media (max-aspect-ratio: 1/1) {
+    .movelist {
+        width: 90vw;
+    }
 }
 
 .active {
