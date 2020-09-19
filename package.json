@@ -17,7 +17,8 @@
     "ws": "^7.3.1"
   },
   "engines": {
-    "node": "10.x"
+    "node": "10.x",
+    "npm": "6.x"
   },
   "scripts": {
     "start-client": "react-scripts start",
