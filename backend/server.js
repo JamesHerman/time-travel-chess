@@ -1,19 +1,14 @@
-const io = require('socket.io')
-    , express = require('express')
-    , path = require('path');
-
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app)
+const io=require('socket.io')(server);
+const path = require('path');
 let port = process.env.PORT;
 if (port == null || port == "") {
-  port = 8000;
+  port = 5000;
 }
-const app = express()
-    , server = require('http').createServer(app)
-    , io = io.listen(server);
-app.use(express.static(path.join(__dirname, '..', 'build')))
 
-server.listen(port);
-
-io.on('connection', async (socket) => {
+io.on('connection', (socket) => {
     socket.on('create', () => {
         createRoom(socket);
     })
@@ -21,6 +16,12 @@ io.on('connection', async (socket) => {
         joinRoom(socket, data.roomID)
     })
 });
+
+app.use(express.static(path.join(__dirname, '..', 'build')))
+
+server.listen(port);
+
+
 
 function createRoom(socket) {
     const roomID = getEmptyRoom();
@@ -37,7 +38,6 @@ function createRoom(socket) {
 function getEmptyRoom() {
     let roomID = Math.floor(Math.random()*1000000);
     io.in(roomID).clients((error, clients) => {
-        if (error) throw error;
         if (clients[0]) {
             roomID = getEmptyRoom();
         }
