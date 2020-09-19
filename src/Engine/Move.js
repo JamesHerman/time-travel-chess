@@ -17,11 +17,19 @@ export default class Move {
         this.invalid = false;
         this.capture = false;
         this.check = false;
+        this.castle = props.castle;
+        this.promotion = props.promotion;
         this.notation = function() {
             let columns = ['a','b','c','d','e','f','g','h']
             let notation = this.piece.abbreviation + columns[this.startColumn] + (this.startRow+1) + columns[this.endColumn] + (this.endRow + 1);
             if (this.capture) {
                 notation = this.piece.abbreviation + columns[this.startColumn] + (this.startRow+1) + 'x' + columns[this.endColumn] + (this.endRow + 1)
+            }
+            if (this.castle) {
+                notation = this.endColumn === 6 ? 'O-O' : 'O-O-O'
+            }
+            if (this.promotion) {
+                notation = notation + props.promotion.piece.abbreviation;
             }
             if (this.check) {
                 notation = notation + "+"
@@ -92,6 +100,14 @@ export default class Move {
         const nextBoard = boardState.map((row) => row.slice());
         nextBoard[this.startRow][this.startColumn] = null;
         nextBoard[this.endRow][this.endColumn] = this.piece;
+        if (this.castle) {
+            nextBoard[this.castle.row][this.castle.startColumn] = null;
+            nextBoard[this.castle.row][this.castle.endColumn] = this.castle.piece;
+        }
+        if (this.promotion) {
+            nextBoard[this.endRow][this.endColumn] = this.promotion.piece;
+        }
+
         const whiteInCheck = whiteKing.inCheck(nextBoard);
         const blackInCheck = blackKing.inCheck(nextBoard);
         
@@ -107,10 +123,4 @@ export default class Move {
             blackInCheck:blackInCheck 
         };
     }
-
-    executeTurnMoves(snapshot) {
-
-    }
-    
-    
 }

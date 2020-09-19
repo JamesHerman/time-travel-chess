@@ -61,7 +61,7 @@ class Board extends React.Component {
                 <div 
                     className={className}
                     onClick={() => this.props.onClick(row,column)}
-                ><img className = "piece" src={piece.image} alt={piece.color + " " + piece.type}></img></div>
+                >{piece.image}</div>
             )
         }
         else{

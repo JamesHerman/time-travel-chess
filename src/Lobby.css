@@ -1,0 +1,31 @@
+div {
+    font-size: calc(10px + 3vmin);
+}
+input {
+    height: 5vh;
+    transition: 1s;
+    font-size: calc(8px + 2vmin);
+}
+
+.lobby-button {
+    height: 6vh;
+    background-color: inherit;
+    color: inherit;
+    font-size: calc(8px + 2vmin);
+    transition: 1s;
+    border: none;
+}
+
+.lobby-button:hover {
+    opacity: 0.8;
+    margin-right: -6px;
+}
+
+.lobby-button.disabled {
+    opacity: 0.3;
+}
+
+.inactive {
+    pointer-events: none;
+    opacity: 0;
+}

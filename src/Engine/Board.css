@@ -20,10 +20,10 @@
 
 
 .white {
-    background-color: white;
+    background-color: wheat;
 }
 .black {
-    background-color: black;
+    background-color: rgb(248,216,180,0.6);
 }
 
 .selected {
@@ -39,10 +39,4 @@
 
 .black.legalMove{
     background-color: rgba(70,255,120,.5);
-}
-
-.piece {
-    padding: 10%;
-    width: 80%;
-    height: 80%;
 }

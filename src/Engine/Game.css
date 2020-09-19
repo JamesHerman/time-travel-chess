@@ -9,15 +9,25 @@
 }
 
 .game.white {
-    background-color: white;
+    background-color: #CCDDEE;
     color: black;
-    border-color: black;
+    border-color: #AABBCC;
 }
 
 .game.black {
-    background-color: black;
+    background-color: #554433;
     color: white;
-    border-color: white;
+    border-color: #332211;
+}
+
+.centered {
+    margin: auto;
+    width: 30vh;
+}
+
+.promotion-option {
+    width: 25%;
+    display: inline-block;
 }
 
 .half-column {
@@ -28,15 +38,18 @@
     margin-left: 5%;
 }
 
-.width-33P {
-    width: 33.333%;
+.width-25P {
+    width: 25%;
 }
 
-.button {
+button {
     height: 5vh;
     background-color: inherit;
     color: inherit;
     font-size: calc(10px + 2vmin);
+    border: 3px solid;
+    border-color: inherit;
+    border-radius: 5px;
 }
 
 button:hover {
@@ -44,11 +57,7 @@ button:hover {
 }
 
 button.disabled {
-    opacity: 0.3;
-}
-
-button::selection {
-    border: none;
+    opacity: 0.0;
 }
 
 .row-flex {

@@ -88,6 +88,30 @@ class Timeline {
         return [color, checkTurn, checkmate];
     }
 
+    //Return whether the last move on which the player can castle [kingside, queenside]
+    castleInvalidAfterTurn(color) {
+        const finalTurn = this.moves.length - 1;
+        let queensideRook = this.pieces[color][0]
+        let kingsideRook = this.pieces[color][7]
+        let king = this.pieces[color][4]
+        let checkArray = color === 'white' ? this.whiteInCheck: this.blackInCheck;
+        let lastTurn = {queenside: finalTurn + 1, kingside: finalTurn + 1}
+        for(let turn = 0;turn <= finalTurn; turn++) {
+            let move = this.moves[turn];
+            if (move.piece === king || checkArray[turn]) {
+                lastTurn.queenside = Math.min(lastTurn.queenside, turn)
+                lastTurn.kingside = Math.min(lastTurn.kingside, turn)
+            }
+            if (move.piece === queensideRook) {
+                lastTurn.queenside = Math.min(lastTurn.queenside, turn)
+            }
+            if (move.piece === kingsideRook) {
+                lastTurn.kingside = Math.min(lastTurn.kingside, turn)
+            }
+        }
+        return lastTurn;
+    }
+
     addMove(move) { //Returns a new timeline resulting from a move being added, or null if the move would cause the player to be in check
         const turnNumber = move.turnNumber
         const nextTimeline = new Timeline({
@@ -105,7 +129,7 @@ class Timeline {
             let next = this.moves[turn] ? this.boardAfter(turn) : {
                 boardState: this.boardState[turn], 
                 whiteInCheck: this.whiteInCheck[turn], 
-                blackInCheck:this.blackInCheck[turn]
+                blackInCheck: this.blackInCheck[turn]
             }
             this.boardState[turn + 1] = next.boardState;
             this.whiteInCheck[turn + 1] = next.whiteInCheck;

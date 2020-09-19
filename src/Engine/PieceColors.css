@@ -1,0 +1,30 @@
+.black-fill {
+    fill: #000000
+}
+
+.black-fill-highlight {
+    fill: #832400
+}
+
+.black-fill-shadow {
+    fill: #321212
+}
+
+.white-fill {
+    fill: #ffffff
+}
+
+.white-fill-highlight {
+    fill: #e5f5f9
+}
+
+.white-fill-shadow {
+    fill: #75aaaa
+}
+
+svg {
+    display: block;
+    width: 80%;
+    height: 80%;
+    margin: 10%;
+}

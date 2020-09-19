@@ -15,44 +15,44 @@ import './Game.css';
 */
 class Game extends React.Component {
     constructor(props) {
-        super(props);
+        super();
         //Definining pieces early so they can be used when setting initial state
         const pieces = {
         white: [
-            new Rook({color: "white"}),
-            new Knight({color: "white"}),
-            new Bishop({color: "white"}),
-            new Queen({color: "white"}),
-            new King({color: "white"}),
-            new Bishop({color: "white"}),
-            new Knight({color: "white"}),
-            new Rook({color: "white"}),
-            new Pawn({color: "white"}),
-            new Pawn({color: "white"}),
-            new Pawn({color: "white"}),
-            new Pawn({color: "white"}),
-            new Pawn({color: "white"}),
-            new Pawn({color: "white"}),
-            new Pawn({color: "white"}),
-            new Pawn({color: "white"}),
+            new Rook({id:1,color: "white"}),
+            new Knight({id:2,color: "white"}),
+            new Bishop({id:3,color: "white"}),
+            new Queen({id:4,color: "white"}),
+            new King({id:5,color: "white"}),
+            new Bishop({id:6,color: "white"}),
+            new Knight({id:7,color: "white"}),
+            new Rook({id:8,color: "white"}),
+            new Pawn({id:9,color: "white"}),
+            new Pawn({id:10,color: "white"}),
+            new Pawn({id:11,color: "white"}),
+            new Pawn({id:12,color: "white"}),
+            new Pawn({id:13,color: "white"}),
+            new Pawn({id:14,color: "white"}),
+            new Pawn({id:15,color: "white"}),
+            new Pawn({id:16,color: "white"}),
         ],
         black: [
-            new Rook({color: "black"}),
-            new Knight({color: "black"}),
-            new Bishop({color: "black"}),
-            new Queen({color: "black"}),
-            new King({color: "black"}),
-            new Bishop({color: "black"}),
-            new Knight({color: "black"}),
-            new Rook({color: "black"}),
-            new Pawn({color: "black"}),
-            new Pawn({color: "black"}),
-            new Pawn({color: "black"}),
-            new Pawn({color: "black"}),
-            new Pawn({color: "black"}),
-            new Pawn({color: "black"}),
-            new Pawn({color: "black"}),
-            new Pawn({color: "black"}),
+            new Rook({id:17,color: "black"}),
+            new Knight({id:18,color: "black"}),
+            new Bishop({id:19,color: "black"}),
+            new Queen({id:20,color: "black"}),
+            new King({id:21,color: "black"}),
+            new Bishop({id:22,color: "black"}),
+            new Knight({id:23,color: "black"}),
+            new Rook({id:24,color: "black"}),
+            new Pawn({id:25,color: "black"}),
+            new Pawn({id:26,color: "black"}),
+            new Pawn({id:27,color: "black"}),
+            new Pawn({id:28,color: "black"}),
+            new Pawn({id:29,color: "black"}),
+            new Pawn({id:30,color: "black"}),
+            new Pawn({id:31,color: "black"}),
+            new Pawn({id:32,color: "black"}),
         ]};
         this.state = {
             whiteToMove: true,
@@ -68,14 +68,24 @@ class Game extends React.Component {
         }
     }
 
+    componentDidMount() {//Set up move listener for moves from other player
+        this.props.connection.on('move', data => {
+            console.log(data)
+            let message = JSON.parse(data);
+            if (message.move) {
+                this.executeMove(message.move)
+            }
+        })
+    }
+
     handleClick(row,column) {//Handles a click event on the main board
-        if (!this.state.checkmate) {
+        if (!this.state.checkmate && !this.state.tentativeTimeline) {
             const timeline = this.state.timeline;
             const activeTurn = this.state.activeTurn;
             const boardState = timeline.boardState[activeTurn];
             const clickedPiece = boardState[row][column];
             const selectedPiece = this.state.selectedPiece;
-            const legalMoves = selectedPiece ? selectedPiece.safeMoves(timeline,activeTurn) : null
+            const legalMoves = selectedPiece ? selectedPiece.safeMoves(timeline,activeTurn) : null;
             let isLegalMove = false;
             if (legalMoves) {
                 for (const space of legalMoves) {
@@ -86,20 +96,51 @@ class Game extends React.Component {
             }
 
             //Select a clicked piece matching active player color
-            if (clickedPiece && (clickedPiece.color === "white") === this.state.whiteToMove) {
-                this.selectPiece(clickedPiece,row,column);
+            if (clickedPiece 
+                && (clickedPiece.color === "white") === this.state.whiteToMove
+                && (clickedPiece.color === this.props.playerColor)
+                && !this.state.tentativeTimeline) {
+                this.setState({
+                    selectedPiece: clickedPiece
+                });
             }
 
             //move if a piece is selected
             else if (selectedPiece && isLegalMove) {
-                let move = this.createMoveTo(row,column,selectedPiece,this.state.activeTurn)
-                let nextTimeline = timeline.addMove(move)
-                if (nextTimeline.firstCheck[0] !== selectedPiece.color){
-                    this.updateTimeline(nextTimeline);                
+                const startLocation = selectedPiece.getLocation(boardState)
+                const moveParams = {
+                    turnNumber: activeTurn,
+                    startRow: startLocation[0],
+                    startColumn: startLocation[1],
+                    endRow: row,
+                    endColumn: column,
+                    pieceID: selectedPiece.id,
                 }
-                else {
-                    alert('This move would leave you in check')
+                if (selectedPiece.type === 'king' && Math.abs(startLocation[1]-column) > 1) {
+                    moveParams.castle = {
+                        row: startLocation[0],
+                        startColumn: column===2? 0:7,
+                        endColumn: column===2? 3:5,
+                        pieceID: timeline.pieces[selectedPiece.color][column===2?0:7].id
+                    }
                 }
+                if (selectedPiece.type === 'pawn' && row === (selectedPiece.color==='white'?7:0)) {
+                    const newPieceID = this.state.timeline.pieces.white.length + this.state.timeline.pieces.black.length + 1;
+                    const newPieceColor = selectedPiece.color;
+                    this.setState({
+                        choosingPromotion: {
+                            moveParams: moveParams,
+                            id: newPieceID,
+                            knight: new Knight({id: newPieceID, color: newPieceColor}),
+                            rook: new Rook({id: newPieceID, color: newPieceColor}),
+                            bishop: new Bishop({id: newPieceID, color: newPieceColor}),
+                            queen: new Queen({id: newPieceID, color: newPieceColor}),
+                            color: selectedPiece.color,
+                        }
+                    })
+                    return;
+                }
+                this.executeMove(moveParams)
             }
         }
     }
@@ -129,29 +170,101 @@ class Game extends React.Component {
                 }
     }
 
-    createMoveTo(row,column,selectedPiece,turnNumber) {//Creates a new move to [row,column] using the selected piece
-        const startLocation = selectedPiece.getLocation(this.state.timeline.boardState[turnNumber])
-        const moveParams = {
-            turnNumber: turnNumber,
-            startRow: startLocation[0],
-            startColumn: startLocation[1],
-            endRow: row,
-            endColumn: column,
-            piece: selectedPiece,
-        }
-        let move = new Move(moveParams)
-        return move;
+    sendMove(moveParams) {
+        const move = JSON.stringify({move: moveParams})
+        this.props.connection.emit('move', move)
     }
 
+    executeMove(moveParams) {
+        const timeline = this.state.timeline;
+        moveParams.piece = this.getPiece(moveParams.pieceID)
+        if (moveParams.castle) {
+            moveParams.castle.piece = this.getPiece(moveParams.castle.pieceID)
+        }
+        if (moveParams.promotion) {
+            const props = {id: moveParams.promotion.newPieceID, color: moveParams.promotion.color}
+            switch (moveParams.promotion.type) {
+                case 'knight':
+                    moveParams.promotion.piece = new Knight(props); 
+                break;
+                case 'rook':
+                    moveParams.promotion.piece = new Rook(props);
+                break;
+                case 'bishop':
+                    moveParams.promotion.piece = new Bishop(props);
+                break;
+                case 'queen':
+                    moveParams.promotion.piece = new Queen(props);
+                break;
+                default:
+                break;
+            }
+            this.state.timeline.pieces[props.color].push(moveParams.promotion.piece);
+        }
+        const move = new Move(moveParams);
+        const nextTimeline = timeline.addMove(move);
+        if (nextTimeline.firstCheck[0] !== move.piece.color){
+            if(move.piece.color === this.props.playerColor) {
+                this.setState({
+                    tentativeTimeline: nextTimeline,
+                    tentativeMove: moveParams,
+                    activeTurn: nextTimeline.boardState.length - 1,
+                    selectedPiece: null
+                }); 
+            }
+            else {
+                this.updateTimeline(nextTimeline);
+            }
+        }
+        else {
+            alert('This move would leave you in check')
+        }
+    }
 
-
-    selectPiece(clickedPiece) {//Selects a clicked piece
+    confirmMove() {
+        this.updateTimeline(this.state.tentativeTimeline)
+        this.sendMove(this.state.tentativeMove)
         this.setState({
-            selectedPiece: clickedPiece
+            tentativeTimeline: undefined,
+            tentativeMove: undefined
         })
     }
 
-    
+    rejectMove() {
+        this.setState({
+            tentativeTimeline: undefined,
+            tentativeMove: undefined,
+            activeTurn: this.state.timeline.boardState.length - 1,
+        })
+    }
+
+    choosePromotion(type) {
+        const moveParams = this.state.choosingPromotion.moveParams;
+        moveParams.promotion = {
+            newPieceID: this.state.choosingPromotion.id,
+            color: this.state.choosingPromotion.color,
+            type: type
+        }
+        //Add new piece to array of pieces
+        this.setState({
+            choosingPromotion: undefined,
+        })
+        this.sendMove(moveParams);
+        this.executeMove(moveParams);
+    }
+
+    getPiece(id) {
+        for (const piece of this.state.timeline.pieces.white){
+            if (piece.id === id){
+                return piece;
+            }
+        }
+        for (const piece of this.state.timeline.pieces.black){
+            if (piece.id === id){
+                return piece;
+            }
+        }
+    }
 
     backTurn() {//Decrements active turn by 1
         if (this.state.check && !this.state.checkmate) {
@@ -193,7 +306,7 @@ class Game extends React.Component {
         }
         else {
             let turn = turnNumber;
-            while (this.moveIsCheck(turn)) {
+            while (this.state.timeline.blackInCheck[turn] || this.state.timeline.whiteInCheck[turn]) {
                 turn--;
             }
             this.setState({
@@ -213,17 +326,34 @@ class Game extends React.Component {
     }
 
     render() {
-        const timeline = this.state.timeline
+        const tentative = this.state.tentativeTimeline?true:false
+        const timeline = tentative? this.state.tentativeTimeline:this.state.timeline;
         const activeTurn = this.state.activeTurn;
-        const turnNumber = this.state.turnNumber;
+        const turnNumber = tentative?this.state.tentativeTimeline.boardState.length-1:this.state.turnNumber;
         const moveList = timeline.moves;
         const activeBoardState = timeline.boardState[activeTurn];
         const finalBoardState = timeline.boardState[turnNumber]
         const activePlayer = this.state.whiteToMove ? 'white' : 'black';
         const selectedPiece = this.state.selectedPiece;
         const legalMoves = selectedPiece ? selectedPiece.safeMoves(timeline,activeTurn) : null;
+        if (this.state.choosingPromotion) {
+            return <div className={"game" + this.props.playerColor}>
+                <div>
+                    <div className='centered'><Board
+                        boardState={activeBoardState}
+                        size="small"
+                        onClick={() => null}
+                    /></div>
+                    Choose a piece to promote your pawn into:<br/>
+                    <div className="promotion-option" onClick={() => this.choosePromotion('knight')}>{this.state.choosingPromotion.knight.image}</div>
+                    <div className="promotion-option" onClick={() => this.choosePromotion('bishop')}>{this.state.choosingPromotion.bishop.image}</div>
+                    <div className="promotion-option" onClick={() => this.choosePromotion('rook')}>{this.state.choosingPromotion.rook.image}</div>
+                    <div className="promotion-option" onClick={() => this.choosePromotion('queen')}>{this.state.choosingPromotion.queen.image}</div>
+                </div>
+            </div>
+        }
         return (
-            <div className={"game " + activePlayer}>
+            <div className={"game " + this.props.playerColor}>
                     <div className="row-flex">
                         <div>
                             <Board
@@ -237,6 +367,7 @@ class Game extends React.Component {
                             <div className="row-flex">
                                 {this.renderTimeTravelButton('back')}
                                 {this.renderConfirmButton()}
+                                {this.renderRejectButton()}
                                 {this.renderTimeTravelButton('forward')}
                             </div>
                         </div>
@@ -245,7 +376,7 @@ class Game extends React.Component {
                             <Board
                                 boardState={finalBoardState}
                                 size="small"
-                                onClick={()=>this.goToTurn((this.state.whiteToMove === timeline.whiteToMove[turnNumber])? turnNumber : turnNumber - 1)}
+                                onClick={()=>this.goToTurn(turnNumber)}
                             />
                             <Movelist
                                 activeTurn={activeTurn}
@@ -260,8 +391,16 @@ class Game extends React.Component {
     }
 
     renderConfirmButton() {
+        const className="width-25P " + (this.state.tentativeTimeline?'': ' disabled');
         return(
-            <div className="width-33P"></div>
+            <button className={className} onClick={()=> this.state.tentativeTimeline? this.confirmMove() : null}>✓</button>
+        )
+    }
+
+    renderRejectButton() {
+        const className="width-25P " + (this.state.tentativeTimeline?'': ' disabled');
+        return(
+            <button className={className} onClick={()=> this.state.tentativeTimeline? this.rejectMove() : null}>X</button>
         )
     }
 
@@ -270,14 +409,14 @@ class Game extends React.Component {
         const turnNumber = this.state.turnNumber;
         if (direction === 'forward') {
             const condition = (activeTurn < turnNumber);
-            const className = 'forward button width-33P' + (condition?'':' disabled')
+            const className = 'forward button width-25P' + (condition?'':' disabled')
             return(
                 <button onClick={()=>this.forwardTurn()} className={className}>&raquo;</button>
             )
         }
         if (direction === 'back') {
             const condition = (activeTurn > 0);
-            const className = 'back button width-33P' + (condition?'':' disabled')
+            const className = 'back button width-25P' + (condition?'':' disabled')
             return(
                 <button onClick={()=>this.backTurn()} className={className}>&laquo;</button>
             )
