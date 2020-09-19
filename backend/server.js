@@ -13,7 +13,6 @@ if (port == null || port == "") {
 app.listen(port);
 
 io.on('connection', async (socket) => {
-    console.log('connect ' + socket.id)
     socket.on('create', () => {
         createRoom(socket);
     })
@@ -58,7 +57,6 @@ function joinRoom(socket, roomID) {
             roomFull = true;
             socket.emit('warning', 'The game is full')
         }
-        console.log(roomFull)
         if (!roomFull && roomExists) {
             let isWhitePlayer = Math.random() >= 0.5;
             socket.join(roomID, () => {
