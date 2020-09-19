@@ -362,8 +362,8 @@ class Game extends React.Component {
             </div>
         }
         return (
-            <div className={"game " + this.props.playerColor}>
-                    <div className="row-flex">
+            <div className={"game " + (this.props.singlePlayer?activePlayer:this.props.playerColor)}>
+                    <div className="row-flex-widescreen">
                         <div>
                             <Board
                                 activePlayer={activePlayer}
@@ -380,7 +380,7 @@ class Game extends React.Component {
                                 {this.renderTimeTravelButton('forward')}
                             </div>
                         </div>
-                        <div className="margin-left-5P">
+                        <div className="margin-left-5P-widescreen column-flex">
                             Final Board:
                             <Board
                                 boardState={finalBoardState}
