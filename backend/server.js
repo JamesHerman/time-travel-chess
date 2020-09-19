@@ -1,4 +1,16 @@
 const io = require('socket.io')(3030);
+const express = require('express');
+const path = require('path');
+
+const app = express();
+
+app.use(express.static(path.join(__dirname, '..', 'build')))
+
+app.listen(5000, ()=> {
+    console.log(
+        'server started on port 5000'
+    )
+})
 
 io.on('connection', async (socket) => {
     console.log('connect ' + socket.id)
