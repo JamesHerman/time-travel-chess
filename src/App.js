@@ -6,7 +6,7 @@ import socketIOClient from 'socket.io-client'
 class App extends React.Component {
   constructor(props) {
     super()
-    const wsURL = 'ws://localhost:3030';
+    const wsURL = 'ws://time-travel-chess.herokuapp.com';
     const socket = socketIOClient(wsURL)
     socket.on('connect', () => {
       console.log('connected')
