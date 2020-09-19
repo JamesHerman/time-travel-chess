@@ -2,12 +2,11 @@ import React from 'react';
 import Game from './Engine/Game'
 import Lobby from './Lobby'
 import './App.css';
-import socketIOClient from 'socket.io-client'
+import io from 'socket.io-client'
 class App extends React.Component {
   constructor(props) {
     super()
-    const wsURL = 'ws://time-travel-chess.herokuapp.com';
-    const socket = socketIOClient(wsURL)
+    const socket = io()
     socket.on('connect', () => {
       console.log('connected')
     });
