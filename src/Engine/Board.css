@@ -8,6 +8,15 @@
     width: 12.5%;
 }
 
+.full {
+    height: 90vmin;
+    width: 90vmin;
+}
+
+.small {
+    height: 30vmin;
+    width: 30vmin;
+}
 
 .white {
     background-color: wheat;

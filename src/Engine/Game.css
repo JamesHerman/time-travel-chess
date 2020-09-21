@@ -2,7 +2,9 @@
     transition: 1s;
     min-width: 100vw;
     min-height: 100vh;
+    box-sizing: border-box;
     height: fit-content;
+    padding-top: 2vmin;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -23,7 +25,7 @@
 
 .centered {
     margin: auto;
-    width: 30vh;
+    width: 30vmin;
 }
 
 .promotion-option {
@@ -44,10 +46,10 @@
 }
 
 button {
-    height: 5vh;
+    height: calc(20px + 4vmin);
     background-color: inherit;
-    color: inherit;
     font-size: calc(10px + 2vmin);
+    color: inherit;
     border: 3px solid;
     border-color: inherit;
     border-radius: 5px;
@@ -70,6 +72,7 @@ button.disabled {
     display:flex;
     flex-direction: row;
 }
+
 @media (min-aspect-ratio: 4/3) {
     .margin-left-5P-widescreen{
         margin-left: 5%;
@@ -77,27 +80,5 @@ button.disabled {
     .row-flex-widescreen {
         display:flex;
         flex-direction: row;
-    }
-}
-@media (min-aspect-ratio: 1/1) {
-    .full {
-        height: 90vh;
-        width: 90vh;
-    }
-    
-    .small {
-        height: 30vh;
-        width: 30vh;
-    }
-}
-@media (max-aspect-ratio: 1/1) {
-    .full {
-        height: 90vw;
-        width: 90vw;
-    }
-
-    .small {
-        height: 30vw;
-        width: 30vw;
     }
 }

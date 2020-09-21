@@ -56,7 +56,7 @@ export default class Move {
             //Account for pawn having different capture directions to move directions
             if (this.piece.type === "pawn") {
                 for (const direction of this.piece.moveDirections) {
-                    if (this.vector[0] === direction[0] && this.vector[1] === direction[1]) {
+                    if ((this.vector[0] === direction[0] || this.vector[0] === direction[0] * 2) && this.vector[1] === direction[1]) {
                         this.invalid = true;
                         return false;
                     }

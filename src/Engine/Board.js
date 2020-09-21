@@ -4,7 +4,7 @@ import './Board.css'
 class Board extends React.Component {
     render() {
         return (
-            <div>
+            <div className="Board">
                 <div className={this.props.size}>
                     {this.renderRow(7)}
                     {this.renderRow(6)}

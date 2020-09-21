@@ -1,3 +1,28 @@
+.move {
+    font-size: calc(6px + 2vmin);
+}
+
+.last-move {
+    color: rgba(120,70,20,1);
+    background-color:rgba(255,205,100,.8);
+    border-radius: calc(2px + 1vmin);
+}
+
+.tentative-move {
+    color: rgba(120,30,20,1);
+    background-color: rgba(255,150,40,.8);
+    border-radius: calc(2px + 1vmin);
+}
+
+.active {
+    color: rgba(20,120,60,1);
+    background-color: rgba(70,255,120,.8);
+    border-radius: calc(2px + 1vmin);
+}
+.last-move.active{
+    color: rgba(20,120,60,1);
+    background-color: rgba(70,255,120,.8);
+}
 .no-margins{
     margin: 0px;
 }
@@ -12,17 +37,14 @@
 
 @media (min-aspect-ratio: 1/1) {
     .movelist {
-        overflow: auto;
+        overflow-y: auto;
+        overflow-x: visible;
         height: 50vh;
+        width: 30vh;
     }
 }
 @media (max-aspect-ratio: 1/1) {
     .movelist {
         width: 90vw;
     }
-}
-
-.active {
-    background-color: rgba(70,255,120,.5);
-    border-radius: 3px;
 }

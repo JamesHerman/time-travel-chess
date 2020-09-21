@@ -74,6 +74,9 @@ class Game extends React.Component {
             let message = JSON.parse(data);
             if (message.move) {
                 this.executeMove(message.move)
+                this.setState({
+                    lastMoveNumber: message.move.turnNumber,
+                })
             }
         })
     }
@@ -227,6 +230,7 @@ class Game extends React.Component {
         this.updateTimeline(this.state.tentativeTimeline)
         this.sendMove(this.state.tentativeMove)
         this.setState({
+            lastMoveNumber: this.state.tentativeMove.turnNumber,
             tentativeTimeline: undefined,
             tentativeMove: undefined
         })
@@ -386,6 +390,8 @@ class Game extends React.Component {
                                 activeTurn={activeTurn}
                                 activePlayer={activePlayer}
                                 allMoves = {moveList}
+                                lastMoveNumber = {this.state.lastMoveNumber}
+                                tentativeMoveNumber = {tentative ? this.state.tentativeMove.turnNumber : null}
                                 onClick={(turn) => this.goToTurn(turn)}
                             />
                         </div>
@@ -399,7 +405,15 @@ class Game extends React.Component {
             return (
                 <div className="row-flex">
                     {this.renderTimeTravelButton('back')}
-                    <div className="width-50P ">Your turn</div>
+                    <div className="width-50P ">{
+                        this.state.checkmate?
+                            "Checkmate!":
+                            this.props.singlePlayer?
+                                (this.state.whiteToMove?
+                                    "White's turn"
+                                    : "Black's turn")
+                                :'Your turn'}
+                    </div>
                     {this.renderTimeTravelButton('forward')}
                 </div>
             )
@@ -419,14 +433,14 @@ class Game extends React.Component {
     renderConfirmButton() {
         const className="width-25P " + (this.state.tentativeTimeline?'': ' disabled');
         return(
-            <button className={className} onClick={()=> this.state.tentativeTimeline? this.confirmMove() : null}>✓</button>
+            <button className={className} onClick={()=> this.state.tentativeTimeline? this.confirmMove() : null}>Confirm</button>
         )
     }
 
     renderRejectButton() {
         const className="width-25P " + (this.state.tentativeTimeline?'': ' disabled');
         return(
-            <button className={className} onClick={()=> this.state.tentativeTimeline? this.rejectMove() : null}>X</button>
+            <button className={className} onClick={()=> this.state.tentativeTimeline? this.rejectMove() : null}>Undo</button>
         )
     }
 
