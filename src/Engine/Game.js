@@ -208,7 +208,7 @@ class Game extends React.Component {
         }
         const move = new Move(moveParams);
         const nextTimeline = timeline.addMove(move);
-        if (nextTimeline.firstCheck[0] !== move.piece.color){
+        if (nextTimeline.firstCheck()[0] !== move.piece.color){
             if(move.piece.color === this.props.playerColor || this.props.singlePlayer) {
                 this.setState({
                     tentativeTimeline: nextTimeline,
