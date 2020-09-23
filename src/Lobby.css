@@ -7,6 +7,11 @@ input {
     font-size: calc(8px + 2vmin);
 }
 
+.message {
+    margin-top: -6vh;
+    height: 6vh;
+}
+
 .lobby-button {
     height: 6vh;
     background-color: inherit;
