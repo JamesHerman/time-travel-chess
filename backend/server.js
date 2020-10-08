@@ -15,6 +15,9 @@ io.on('connection', (socket) => {
     socket.on('join', (data) => {
         joinRoom(socket, data.roomID)
     })
+    socket.on('rejoin', (data) => {
+        rejoinRoom(socket, data.roomID)
+    })
 });
 
 app.use(express.static(path.join(__dirname, '..', 'build')))
@@ -45,6 +48,24 @@ function getEmptyRoom() {
     return roomID;
 }
 
+function rejoinRoom(socket, roomID) {
+    let roomFull = false
+    io.in(roomID).clients((error, clients) => {
+        if (clients[1]) {
+            roomFull = true;
+            socket.emit('warning', 'The game is full')
+        }
+        if (!roomFull) {
+            socket.join(roomID, () => {
+                socket.emit('rejoined');
+            })
+            socket.on('move', function (data) {
+                socket.to(roomID).emit('move', data)
+            });
+        }
+    })
+}
+
 function joinRoom(socket, roomID) {
     let roomFull = false
     let roomExists = true
@@ -53,7 +74,6 @@ function joinRoom(socket, roomID) {
             roomExists = false;
             socket.emit('warning', 'The game does not exist')
         }
-        console.log(roomExists)
         if (clients[1]) {
             roomFull = true;
             socket.emit('warning', 'The game is full')

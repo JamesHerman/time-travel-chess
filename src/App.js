@@ -24,6 +24,7 @@ class App extends React.Component {
         waiting: true,
         gameID: data.roomID,
       })
+      this.autoReconnect(data.roomID)
     })
     socket.on('joined', (isWhitePlayer) => {
       this.setState({
@@ -32,6 +33,13 @@ class App extends React.Component {
       })
     })
     socket.emit('create')
+  }
+
+  autoReconnect(gameID) {
+    const socket = this.state.socket;
+    socket.on('reconnect', () => {
+      socket.emit('rejoin', {roomID: gameID})
+    })
   }
 
   joinGame(gameID) {
@@ -43,6 +51,7 @@ class App extends React.Component {
       })
     })
     socket.emit('join', {roomID: gameID})
+    this.autoReconnect(gameID)
   }
 
   singlePlayerGame() {

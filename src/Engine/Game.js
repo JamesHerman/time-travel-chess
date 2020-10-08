@@ -5,6 +5,7 @@ import Board from './Board';
 import Move from './Move';
 import Movelist from './Movelist';
 import './Game.css';
+import { Socket } from 'socket.io-client';
 
 
 /* Controls turn order, displays boards & UI elements
@@ -66,11 +67,16 @@ class Game extends React.Component {
                 pieces: pieces,
             }),
         }
+        document.addEventListener('keydown', (event) => {
+            this.handleKeyPress(event);
+        })
     }
 
-    componentDidMount() {//Set up move listener for moves from other player
+    componentDidMount() {
+        this.listenForMove();
+    }
+    listenForMove() {//Set up move listener for moves from other player
         this.props.connection.on('move', data => {
-            console.log(data)
             let message = JSON.parse(data);
             if (message.move) {
                 this.executeMove(message.move)
@@ -79,6 +85,17 @@ class Game extends React.Component {
                 })
             }
         })
+        
+    }
+
+    handleKeyPress(event) {
+        if (event.keyCode === 13 && this.state.tentativeTimeline) {
+            this.confirmMove();
+        } else if (event.keyCode === 37) {
+            this.backTurn();
+        } else if (event.keyCode === 39) {
+            this.forwardTurn()
+        }
     }
 
     handleClick(row,column) {//Handles a click event on the main board
@@ -208,17 +225,22 @@ class Game extends React.Component {
         }
         const move = new Move(moveParams);
         const nextTimeline = timeline.addMove(move);
-        if (nextTimeline.firstCheck()[0] !== move.piece.color){
+        const firstCheck = nextTimeline.firstCheck()
+        if (firstCheck[0] !== move.piece.color){
             if(move.piece.color === this.props.playerColor || this.props.singlePlayer) {
                 this.setState({
                     tentativeTimeline: nextTimeline,
                     tentativeMove: moveParams,
                     activeTurn: nextTimeline.boardState.length - 1,
+                    turnNumber: nextTimeline.boardState.length - 1,
                     selectedPiece: null
                 }); 
             }
             else {
                 this.updateTimeline(nextTimeline);
+                this.setState({
+                    lastMoveNumber: move.turnNumber,
+                })
             }
         }
         else {
@@ -237,10 +259,12 @@ class Game extends React.Component {
     }
 
     rejectMove() {
+        const activeTurn = this.state.check?this.state.timeline.firstCheck()[1]:this.state.timeline.boardState.length-1;
         this.setState({
             tentativeTimeline: undefined,
             tentativeMove: undefined,
-            activeTurn: this.state.timeline.boardState.length - 1,
+            activeTurn: activeTurn,
+            turnNumber: this.state.timeline.boardState.length - 1,
         })
         this.state.timeline.evaluate();
     }
@@ -366,7 +390,7 @@ class Game extends React.Component {
             </div>
         }
         return (
-            <div className={"game " + (this.props.singlePlayer?activePlayer:this.props.playerColor)}>
+            <div onKeyUp={(event) => this.handleKeyPress(event)} className={"game " + (this.props.singlePlayer?activePlayer:this.props.playerColor)}>
                     <div className="row-flex-widescreen">
                         <div>
                             <Board

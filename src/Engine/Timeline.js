@@ -94,7 +94,7 @@ class Timeline {
         let queensideRook = this.pieces[color][0]
         let kingsideRook = this.pieces[color][7]
         let king = this.pieces[color][4]
-        let checkArray = color === 'white' ? this.whiteInCheck: this.blackInCheck;
+        let checkArray = (color === 'white') ? this.whiteInCheck: this.blackInCheck;
         let lastTurn = {queenside: finalTurn + 1, kingside: finalTurn + 1}
         for(let turn = 0;turn <= finalTurn; turn++) {
             let move = this.moves[turn];
