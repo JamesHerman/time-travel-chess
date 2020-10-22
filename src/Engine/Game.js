@@ -398,6 +398,7 @@ class Game extends React.Component {
                                 size="full"
                                 boardState={activeBoardState}
                                 selectedPiece={selectedPiece}
+                                playingBlack={(this.props.playerColor==='black')?true:false}
                                 legalMoves={legalMoves}
                                 onClick={(row,column) => this.handleClick(row,column)}
                             />
@@ -407,7 +408,7 @@ class Game extends React.Component {
                             Final Board:
                             <Board
                                 boardState={finalBoardState}
-                                playingBlack={(this.props.playerColor==='black')?true:undefined}
+                                playingBlack={(this.props.playerColor==='black')?true:false}
                                 size="small"
                                 onClick={()=>this.goToTurn(turnNumber)}
                             />
