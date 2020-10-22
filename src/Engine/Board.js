@@ -3,21 +3,38 @@ import './Board.css'
 //Renders board ui
 class Board extends React.Component {
     render() {
-        return (
-            <div className="Board">
-                <div className={this.props.size}>
-                    {this.renderRow(7)}
-                    {this.renderRow(6)}
-                    {this.renderRow(5)}
-                    {this.renderRow(4)}
-                    {this.renderRow(3)}
-                    {this.renderRow(2)}
-                    {this.renderRow(1)}
-                    {this.renderRow(0)}
+        if (this.props.playingBlack) {
+            return(
+                <div className="Board">
+                    <div className={this.props.size}>
+                        {this.renderRow(7)}
+                        {this.renderRow(6)}
+                        {this.renderRow(5)}
+                        {this.renderRow(4)}
+                        {this.renderRow(3)}
+                        {this.renderRow(2)}
+                        {this.renderRow(1)}
+                        {this.renderRow(0)}
+                    </div>
                 </div>
-            </div>
-            
-        )
+            )
+        }
+        else {
+            return (
+                <div className="Board">
+                    <div className={this.props.size}>
+                        {this.renderRow(7)}
+                        {this.renderRow(6)}
+                        {this.renderRow(5)}
+                        {this.renderRow(4)}
+                        {this.renderRow(3)}
+                        {this.renderRow(2)}
+                        {this.renderRow(1)}
+                        {this.renderRow(0)}
+                    </div>
+                </div>
+            )
+        }
     }
     renderRow(index) {
         return(

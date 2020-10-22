@@ -1,5 +1,5 @@
 Feedback button
 Support button
-Fix castling
 Reset button
 Save connection data for disconnect
+Pieces on own side

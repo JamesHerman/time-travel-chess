@@ -407,6 +407,7 @@ class Game extends React.Component {
                             Final Board:
                             <Board
                                 boardState={finalBoardState}
+                                playingBlack={(this.props.playerColor==='black')?true:undefined}
                                 size="small"
                                 onClick={()=>this.goToTurn(turnNumber)}
                             />
