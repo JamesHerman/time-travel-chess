@@ -99,7 +99,7 @@ class Game extends React.Component {
     }
 
     handleClick(row,column) {//Handles a click event on the main board
-        if (!this.state.checkmate && !this.state.tentativeTimeline) {
+        if (!this.state.checkmate && !this.state.tentativeTimeline &&(this.props.connection.connected || this.props.singlePlayer)) {
             const timeline = this.state.timeline;
             const activeTurn = this.state.activeTurn;
             const boardState = timeline.boardState[activeTurn];
