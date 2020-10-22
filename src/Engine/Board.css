@@ -13,6 +13,11 @@
     width: 90vmin;
 }
 
+.medium {
+    height: 50vmin;
+    width: 50vmin;
+}
+
 .small {
     height: 30vmin;
     width: 30vmin;

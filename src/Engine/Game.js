@@ -378,7 +378,7 @@ class Game extends React.Component {
                 <div>
                     <div className='centered'><Board
                         boardState={activeBoardState}
-                        size="small"
+                        size="medium"
                         onClick={() => null}
                     /></div>
                     Choose a piece to promote your pawn into:<br/>
@@ -427,7 +427,7 @@ class Game extends React.Component {
     }
 
     renderButtons() {
-        if (!this.state.tentativeMove && (this.props.playerColor === (this.state.whiteToMove?'white':'black') || this.props.singlePlayer)){
+        if (!this.state.tentativeMove){
             return (
                 <div className="row-flex">
                     {this.renderTimeTravelButton('back')}
@@ -438,7 +438,9 @@ class Game extends React.Component {
                                 (this.state.whiteToMove?
                                     "White's turn"
                                     : "Black's turn")
-                                :'Your turn'}
+                            :((this.props.playerColor === (this.state.whiteToMove?'white':'black'))?
+                                'Your turn'
+                                :'Waiting')}
                     </div>
                     {this.renderTimeTravelButton('forward')}
                 </div>

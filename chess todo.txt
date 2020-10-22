@@ -1,5 +1,4 @@
 Feedback button
 Support button
 Reset button
-Save connection data for disconnect
-Pieces on own side
+Get rid of final board?
