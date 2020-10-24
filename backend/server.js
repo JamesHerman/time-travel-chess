@@ -33,9 +33,7 @@ function createRoom(socket) {
             roomID: roomID
         })
     })
-    socket.on('move', function (data) {
-        socket.to(roomID).emit('move', data)
-    });
+    startGame(socket,roomID);
 }
 
 function getEmptyRoom() {
@@ -59,9 +57,7 @@ function rejoinRoom(socket, roomID) {
             socket.join(roomID, () => {
                 socket.emit('rejoined');
             })
-            socket.on('move', function (data) {
-                socket.to(roomID).emit('move', data)
-            });
+            startGame(socket,roomID);
         }
     })
 }
@@ -84,9 +80,19 @@ function joinRoom(socket, roomID) {
                 socket.emit('joined', isWhitePlayer);
                 io.to(clients[0]).emit('joined', !isWhitePlayer);
             })
-            socket.on('move', function (data) {
-                socket.to(roomID).emit('move', data)
-            });
+            startGame(socket,roomID);
         }
     })
+}
+
+function startGame(socket, roomID) {
+    socket.on('move', function (data) {
+        socket.to(roomID).emit('move', data)
+    });
+    socket.on('resetRequest', function() {
+        socket.to(roomID).emit('resetRequest')
+    });
+    socket.on('resetConfirm', function() {
+        socket.to(roomID).emit('resetConfirm')
+    });
 }

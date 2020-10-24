@@ -5,7 +5,6 @@ import Board from './Board';
 import Move from './Move';
 import Movelist from './Movelist';
 import './Game.css';
-import { Socket } from 'socket.io-client';
 
 
 /* Controls turn order, displays boards & UI elements
@@ -62,6 +61,10 @@ class Game extends React.Component {
             turnNumber: 1,
             activeTurn: 1,
             selectedPiece: null,
+            reset: {
+                self: false,
+                opponent: false
+            },
             timeline: new Timeline({ // Each property of timeline is an array with index = turn number. ie: timeline.moves[5] is a list of moves made on turn 5
                 moves: [],
                 pieces: pieces,
@@ -74,7 +77,9 @@ class Game extends React.Component {
 
     componentDidMount() {
         this.listenForMove();
+        this.listenForReset();
     }
+
     listenForMove() {//Set up move listener for moves from other player
         this.props.connection.on('move', data => {
             let message = JSON.parse(data);
@@ -85,16 +90,32 @@ class Game extends React.Component {
                 })
             }
         })
-        
+    }
+
+    listenForReset() {
+        this.props.connection.on('resetRequest', () => {
+            if (this.state.reset.self) {
+                this.newGame();
+            }
+            else{
+                this.setState({
+                    reset: {
+                        opponent: true
+                    }
+                })
+            }
+        })
     }
 
     handleKeyPress(event) {
-        if (event.keyCode === 13 && this.state.tentativeTimeline) {
-            this.confirmMove();
-        } else if (event.keyCode === 37) {
-            this.backTurn();
-        } else if (event.keyCode === 39) {
-            this.forwardTurn()
+        if (!event.repeat) {
+            if (event.keyCode === 13 && this.state.tentativeTimeline) {
+                this.confirmMove();
+            } else if (event.keyCode === 37) {
+                this.backTurn();
+            } else if (event.keyCode === 39) {
+                this.forwardTurn()
+            }
         }
     }
 
@@ -340,7 +361,7 @@ class Game extends React.Component {
             alert("You cannot time travel while in check") 
         }
         else {
-            let turn = turnNumber;
+            let turn = turnNumber + 1;
             if(!this.state.checkmate){
                 while (this.state.timeline.blackInCheck[turn] || this.state.timeline.whiteInCheck[turn]) {
                     turn--;
@@ -350,6 +371,82 @@ class Game extends React.Component {
                 activeTurn: turn
             })
         }
+    }
+
+    resetGame() {
+        const verified = window.confirm('Are you sure you want to reset?');
+        if ((this.props.singlePlayer || this.state.reset.opponent) && verified) {
+            this.newGame();
+            this.props.connection.emit('resetRequest')
+        }
+        else if (verified) {
+            this.setState({
+                reset: {
+                    self: true
+                }
+            })
+            this.props.connection.emit('resetRequest')
+        }
+    }
+
+    newGame() {
+        const pieces = {
+            white: [
+                new Rook({id:1,color: "white"}),
+                new Knight({id:2,color: "white"}),
+                new Bishop({id:3,color: "white"}),
+                new Queen({id:4,color: "white"}),
+                new King({id:5,color: "white"}),
+                new Bishop({id:6,color: "white"}),
+                new Knight({id:7,color: "white"}),
+                new Rook({id:8,color: "white"}),
+                new Pawn({id:9,color: "white"}),
+                new Pawn({id:10,color: "white"}),
+                new Pawn({id:11,color: "white"}),
+                new Pawn({id:12,color: "white"}),
+                new Pawn({id:13,color: "white"}),
+                new Pawn({id:14,color: "white"}),
+                new Pawn({id:15,color: "white"}),
+                new Pawn({id:16,color: "white"}),
+            ],
+            black: [
+                new Rook({id:17,color: "black"}),
+                new Knight({id:18,color: "black"}),
+                new Bishop({id:19,color: "black"}),
+                new Queen({id:20,color: "black"}),
+                new King({id:21,color: "black"}),
+                new Bishop({id:22,color: "black"}),
+                new Knight({id:23,color: "black"}),
+                new Rook({id:24,color: "black"}),
+                new Pawn({id:25,color: "black"}),
+                new Pawn({id:26,color: "black"}),
+                new Pawn({id:27,color: "black"}),
+                new Pawn({id:28,color: "black"}),
+                new Pawn({id:29,color: "black"}),
+                new Pawn({id:30,color: "black"}),
+                new Pawn({id:31,color: "black"}),
+                new Pawn({id:32,color: "black"}),
+            ]
+        };
+        this.setState({
+            whiteToMove: true,
+            check: false,
+            checkmate: false,
+            turnNumber: 1,
+            activeTurn: 1,
+            selectedPiece: null,
+            tentativeTimeline: undefined,
+            tentativeMove: undefined,
+            lastMoveNumber: undefined,
+            timeline: new Timeline({ // Each property of timeline is an array with index = turn number. ie: timeline.moves[5] is a list of moves made on turn 5
+                moves: [],
+                pieces: pieces,
+            }),
+            reset: {
+                self: false,
+                opponent: false
+            }
+        });
     }
 
     moveIsCheck(turn) {
@@ -362,14 +459,16 @@ class Game extends React.Component {
         return false;
     }
 
+    sendFeedback() {
+        window.open('https://discord.gg/CMsa8HK')
+    }
+
     render() {
         const tentative = this.state.tentativeTimeline?true:false
         const timeline = tentative? this.state.tentativeTimeline:this.state.timeline;
         const activeTurn = this.state.activeTurn;
-        const turnNumber = tentative?this.state.tentativeTimeline.boardState.length-1:this.state.turnNumber;
         const moveList = timeline.moves;
         const activeBoardState = timeline.boardState[activeTurn];
-        const finalBoardState = timeline.boardState[turnNumber]
         const activePlayer = this.state.whiteToMove ? 'white' : 'black';
         const selectedPiece = this.state.selectedPiece;
         const legalMoves = selectedPiece ? selectedPiece.safeMoves(timeline,activeTurn) : null;
@@ -391,37 +490,36 @@ class Game extends React.Component {
         }
         return (
             <div onKeyUp={(event) => this.handleKeyPress(event)} className={"game " + (this.props.singlePlayer?activePlayer:this.props.playerColor)}>
-                    <div className="row-flex-widescreen">
-                        <div>
-                            <Board
-                                activePlayer={activePlayer}
-                                size="full"
-                                boardState={activeBoardState}
-                                selectedPiece={selectedPiece}
-                                playingBlack={(this.props.playerColor==='black')?true:false}
-                                legalMoves={legalMoves}
-                                onClick={(row,column) => this.handleClick(row,column)}
-                            />
-                            {this.renderButtons()}
-                        </div>
-                        <div className="margin-left-5P-widescreen column-flex">
-                            Final Board:
-                            <Board
-                                boardState={finalBoardState}
-                                playingBlack={(this.props.playerColor==='black')?true:false}
-                                size="small"
-                                onClick={()=>this.goToTurn(turnNumber)}
-                            />
-                            <Movelist
-                                activeTurn={activeTurn}
-                                activePlayer={activePlayer}
-                                allMoves = {moveList}
-                                lastMoveNumber = {this.state.lastMoveNumber}
-                                tentativeMoveNumber = {tentative ? this.state.tentativeMove.turnNumber : null}
-                                onClick={(turn) => this.goToTurn(turn)}
-                            />
-                        </div>
+                <div className="row-flex-widescreen">
+                    <div className="fit-content">
+                        <Board
+                            activePlayer={activePlayer}
+                            size="full"
+                            boardState={activeBoardState}
+                            selectedPiece={selectedPiece}
+                            playingBlack={(this.props.playerColor==='black')?true:false}
+                            legalMoves={legalMoves}
+                            onClick={(row,column) => this.handleClick(row,column)}
+                        />
+                        {this.renderButtons()}
                     </div>
+                    <div className="margin-left-5P-widescreen column-flex">
+                        <Movelist
+                            activeTurn={activeTurn}
+                            activePlayer={activePlayer}
+                            allMoves = {moveList}
+                            lastMoveNumber = {this.state.lastMoveNumber}
+                            tentativeMoveNumber = {tentative ? this.state.tentativeMove.turnNumber : null}
+                            onClick={(turn) => this.goToTurn(turn)}
+                        />
+                        <button onClick={() => this.sendFeedback()} className="width-full">
+                            Community
+                        </button> 
+                        <button onClick={() => this.resetGame()} className="width-full">
+                            Reset Game 
+                        </button>
+                    </div>
+                </div>
             </div>
         )
     }

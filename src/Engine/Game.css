@@ -33,8 +33,8 @@
     display: inline-block;
 }
 
-.half-column {
-    width: 50%;
+.fit-content {
+    width: fit-content;
 }
 
 .width-25P {
@@ -45,23 +45,32 @@
     width: 50%;
 }
 
+.width-full {
+    width: 100%;
+}
+
 button {
     height: calc(20px + 4vmin);
     background-color: inherit;
     font-size: calc(10px + 2vmin);
     color: inherit;
-    border: 3px solid;
+    border: 1px solid;
     border-color: inherit;
-    border-radius: 5px;
 }
 
 button:hover {
     opacity: 0.8;
+    background-color: rgba(50,50,50,.2);
+}
+
+button:active {
+    border-radius: 0px;
 }
 
 button.disabled {
     opacity: 0.0;
 }
+
 .column-flex {
     display:flex;
     flex-direction: column;

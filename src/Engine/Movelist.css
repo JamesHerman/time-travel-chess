@@ -5,19 +5,19 @@
 .last-move {
     color: rgba(120,70,20,1);
     background-color:rgba(255,205,100,.8);
-    border-radius: calc(2px + 1vmin);
 }
 
 .tentative-move {
     color: rgba(120,30,20,1);
     background-color: rgba(255,150,40,.8);
-    border-radius: calc(2px + 1vmin);
+}
+.player-color.active {
+    border-radius: calc(2px + 2vmin) calc(2px + 2vmin) 0px 0px;
 }
 
 .active {
     color: rgba(20,120,60,1);
     background-color: rgba(70,255,120,.8);
-    border-radius: calc(2px + 1vmin);
 }
 .last-move.active{
     color: rgba(20,120,60,1);
@@ -35,15 +35,15 @@
     border-top: 1px solid;
 }
 
-@media (min-aspect-ratio: 1/1) {
+@media (min-aspect-ratio: 4/3) {
     .movelist {
         overflow-y: auto;
         overflow-x: visible;
-        height: 50vh;
+        height: calc(86vmin - 20px);
         width: 30vh;
     }
 }
-@media (max-aspect-ratio: 1/1) {
+@media (max-aspect-ratio: 4/3) {
     .movelist {
         width: 90vw;
     }

@@ -5,17 +5,17 @@ class Movelist extends React.Component {
 
     getClassName(turn) {
         return (
-            (this.props.activeTurn === turn ? "active " : "") +
+            ((this.props.activeTurn - 1) === turn ? "active " : "") +
             (this.props.lastMoveNumber === turn ? "last-move " : "") +
             (this.props.tentativeMoveNumber === turn ? "tentative-move " : "") +
-            "half-column no-top-margin move"
+            "width-50P no-top-margin move"
         )
     }
     render() {
         const allMoves = this.props.allMoves;
         const activePlayer = this.props.activePlayer;
         const turns = []
-        let classNameDefault = "half-column no-top-margin move"
+        let classNameDefault = "width-50P no-top-margin move"
         for (let index = 0; index <= allMoves.length; index++) {
             let move = allMoves[index];
             let nextMove = allMoves[index + 1];
@@ -66,18 +66,16 @@ class Movelist extends React.Component {
             )
         }
         return (
-            <div>Moves
-                <div className = "movelist">
-                    <div className='row-flex'>
-                        <div className={(activePlayer==='black' ? 'active ' : '') + 'half-column'}>
-                            Black
-                        </div>
-                        <div className={(activePlayer==='white' ? 'active ' : '') + 'half-column'}>
-                            White
-                        </div>
+            <div className = "movelist">Moves
+                <div className='row-flex'>
+                    <div className={(activePlayer==='black' ? 'active ' : '') + 'player-color width-50P'}>
+                        Black
                     </div>
-                    {turns}
+                    <div className={(activePlayer==='white' ? 'active ' : '') + 'player-color width-50P'}>
+                        White
+                    </div>
                 </div>
+                {turns}
             </div>
         )
     }

@@ -1,4 +1,2 @@
-Feedback button
-Support button
-Reset button
-Get rid of final board?
+Better scroll control
+How to play
