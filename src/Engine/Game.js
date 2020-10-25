@@ -513,7 +513,7 @@ class Game extends React.Component {
         return (
             <div onKeyUp={(event) => this.handleKeyPress(event)} className={"game " + (this.props.singlePlayer?activePlayer:this.props.playerColor)}>
                 <div className="row-flex-widescreen">
-                    <div className="fit-content">
+                    <div className="fit-content centered">
                         <Board
                             activePlayer={activePlayer}
                             size="full"
@@ -549,7 +549,7 @@ class Game extends React.Component {
             return (
                 <div className="row-flex">
                     {this.renderTimeTravelButton('back')}
-                    <div className="width-50P ">{
+                    <div className="width-50P fully-padded">{
                         this.state.checkmate?
                             "Checkmate!":
                             this.props.singlePlayer?

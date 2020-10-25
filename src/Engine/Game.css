@@ -23,6 +23,10 @@
     border-color: #332211;
 }
 
+.fully-padded {
+    padding: .8%;
+}
+
 .centered {
     margin: auto;
     width: fit-content;
