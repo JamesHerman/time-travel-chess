@@ -39,7 +39,7 @@
     .movelist {
         overflow-y: auto;
         overflow-x: visible;
-        height: calc(86vmin - 20px);
+        height: 90vmin;
         width: 30vh;
     }
 }

@@ -4,6 +4,7 @@ import Timeline from './Timeline'
 import Board from './Board';
 import Move from './Move';
 import Movelist from './Movelist';
+import Dialog from './Dialog';
 import './Game.css';
 
 
@@ -60,6 +61,7 @@ class Game extends React.Component {
             checkmate: false,
             turnNumber: 1,
             activeTurn: 1,
+            dialogs: [],
             selectedPiece: null,
             reset: {
                 self: false,
@@ -103,6 +105,7 @@ class Game extends React.Component {
                         opponent: true
                     }
                 })
+                this.openDialog('Your opponent would like to reset the game.', (verified) => this.resetGame(verified));
             }
         })
     }
@@ -218,6 +221,29 @@ class Game extends React.Component {
         }
     }
 
+    getPiece(id) {
+        for (const piece of this.state.timeline.pieces.white){
+            if (piece.id === id){
+                return piece;
+            }
+        }
+        for (const piece of this.state.timeline.pieces.black){
+            if (piece.id === id){
+                return piece;
+            }
+        }
+    }
+    
+    moveIsCheck(turn) {
+        if (this.state.whiteToMove && this.state.timeline.blackInCheck[turn]) {
+            return true;
+        } 
+        if (!this.state.whiteToMove && this.state.timeline.whiteInCheck[turn]) {
+            return true;
+        }
+        return false;
+    }
+
     executeMove(moveParams) {
         const timeline = this.state.timeline;
         moveParams.piece = this.getPiece(moveParams.pieceID)
@@ -265,7 +291,7 @@ class Game extends React.Component {
             }
         }
         else {
-            alert('This move would leave you in check')
+            this.openDialog("This move would leave you in check")
         }
     }
 
@@ -305,22 +331,9 @@ class Game extends React.Component {
         this.executeMove(moveParams);
     }
 
-    getPiece(id) {
-        for (const piece of this.state.timeline.pieces.white){
-            if (piece.id === id){
-                return piece;
-            }
-        }
-        for (const piece of this.state.timeline.pieces.black){
-            if (piece.id === id){
-                return piece;
-            }
-        }
-    }
-
     backTurn() {//Decrements active turn by 1
         if (this.state.check && !this.state.checkmate) {
-            alert("You cannot time travel while in check") 
+            this.openDialog("You cannot use time travel while in check")
         }
         else {
             let turn = this.state.activeTurn - 1;
@@ -339,7 +352,7 @@ class Game extends React.Component {
 
     forwardTurn() {//Increments active turn by 1
         if (this.state.check && !this.state.checkmate) {
-            alert("You cannot time travel while in check") 
+            this.openDialog("You cannot use time travel while in check")
         }
         else {
             let turn = this.state.activeTurn + 1;
@@ -358,7 +371,7 @@ class Game extends React.Component {
 
     goToTurn(turnNumber) {//Jumps the active turn to turnNumber
         if (this.state.check && !this.state.checkmate) {
-            alert("You cannot time travel while in check") 
+            this.openDialog("You cannot time travel while in check")
         }
         else {
             let turn = turnNumber + 1;
@@ -373,8 +386,7 @@ class Game extends React.Component {
         }
     }
 
-    resetGame() {
-        const verified = window.confirm('Are you sure you want to reset?');
+    resetGame(verified) {
         if ((this.props.singlePlayer || this.state.reset.opponent) && verified) {
             this.newGame();
             this.props.connection.emit('resetRequest')
@@ -386,6 +398,7 @@ class Game extends React.Component {
                 }
             })
             this.props.connection.emit('resetRequest')
+            this.openDialog('Waiting for opponent to accept reset.')
         }
     }
 
@@ -449,19 +462,28 @@ class Game extends React.Component {
         });
     }
 
-    moveIsCheck(turn) {
-        if (this.state.whiteToMove && this.state.timeline.blackInCheck[turn]) {
-            return true;
-        } 
-        if (!this.state.whiteToMove && this.state.timeline.whiteInCheck[turn]) {
-            return true;
+    openDialog(text, response) {
+        const newDialog = <Dialog
+            text={text}
+            response={response}
+            dismiss={() => this.closeDialog()}
+        />
+        for(const existingDialog of this.state.dialogs) {
+            if (existingDialog.props.text === newDialog.props.text) {
+                return;
+            }
         }
-        return false;
+        this.setState({
+            dialogs: this.state.dialogs.concat(newDialog)
+        })
     }
 
-    sendFeedback() {
-        window.open('https://discord.gg/CMsa8HK')
+    closeDialog() {
+        this.setState({
+            dialogs: this.state.dialogs.slice(1)
+        })
     }
+
 
     render() {
         const tentative = this.state.tentativeTimeline?true:false
@@ -512,14 +534,12 @@ class Game extends React.Component {
                             tentativeMoveNumber = {tentative ? this.state.tentativeMove.turnNumber : null}
                             onClick={(turn) => this.goToTurn(turn)}
                         />
-                        <button onClick={() => this.sendFeedback()} className="width-full">
-                            Community
-                        </button> 
-                        <button onClick={() => this.resetGame()} className="width-full">
+                        <button onClick={() => this.openDialog('Are you sure you want to reset?', (verified) => this.resetGame(verified))} className="width-full">
                             Reset Game 
                         </button>
                     </div>
                 </div>
+                {this.state.dialogs[0] ? this.state.dialogs[0] : null}
             </div>
         )
     }

@@ -1,0 +1,23 @@
+.dialog {
+     position: fixed;
+     left: 50%;
+     top: 50%;
+     transform: translate(-50%, -50%);
+     min-width: 30vmin;
+     min-height: 15vmin;     
+     color: white;
+     background-color: rgba(0,0,0,0.8);
+     padding: 2vmin;
+}
+
+.dialog .row-flex {
+     justify-content: center;
+}
+
+.dialog button{
+     position: relative;
+     width: 25%;
+     margin-top: 2vmin;
+     margin-left: 1vmin;
+     margin-right: 1vmin;
+}

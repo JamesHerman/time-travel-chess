@@ -9,3 +9,7 @@
   font-size: calc(10px + 2vmin);
   color: #553311;
 }
+
+button {
+  cursor: pointer;
+}

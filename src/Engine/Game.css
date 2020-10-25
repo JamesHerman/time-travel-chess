@@ -25,11 +25,11 @@
 
 .centered {
     margin: auto;
-    width: 30vmin;
+    width: fit-content;
 }
 
 .promotion-option {
-    width: 25vmin;
+    width: 15vmin;
     display: inline-block;
 }
 

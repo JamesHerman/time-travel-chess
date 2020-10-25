@@ -1,5 +1,6 @@
-div {
+.lobby {
     font-size: calc(10px + 3vmin);
+    color: black;
 }
 input {
     height: 5vh;
@@ -33,4 +34,15 @@ input {
 .inactive {
     pointer-events: none;
     opacity: 0;
+}
+
+.lobby svg {
+    height: calc(6vmin + 10px);
+    width: fit-content;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    margin: 0;
+    transform: translateX(-50%);
+    cursor: pointer;
 }
