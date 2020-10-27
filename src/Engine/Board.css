@@ -1,3 +1,15 @@
+.tag{
+    color:rgba(0,0,0,.5);
+    position: relative;
+    height: 2.25vmin;
+    width: 2.25vmin;
+    margin-bottom: -2.25vmin;
+    margin-right: -2.25vmin;
+    font-size: 2.25vmin;
+    top:0;
+    left:0;
+}
+
 .board-row {
     display: flex;
     flex-direction: row;

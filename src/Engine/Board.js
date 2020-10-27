@@ -50,6 +50,26 @@ class Board extends React.Component {
             </div>
         )
     }
+    renderTag(row,column) {
+        let tag = '';
+        if (column === 0) {
+            tag=row+1;
+        }
+        if ((row === 0 && !this.props.playingBlack)||(row === 0 && this.props.playingBlack)) {
+            tag=String.fromCharCode(97+column);
+        }
+        if(column===0 && ((row===0 &&!this.props.playingBlack))) {
+            tag="a1"
+        } 
+        if(column===0 && (row===7 && this.props.playingBlack)) {
+            tag="a8"
+        }
+        return(
+            <div className="tag">
+                {tag}                
+            </div>
+        )
+    }
     renderSquare(row,column) {
         const piece = this.props.boardState[row][column];
 
@@ -78,7 +98,7 @@ class Board extends React.Component {
                 <div 
                     className={className}
                     onClick={() => this.props.onClick(row,column)}
-                >{piece.image}</div>
+                >{this.renderTag(row,column)}{piece.image}</div>
             )
         }
         else{
@@ -86,7 +106,7 @@ class Board extends React.Component {
                 <div 
                     className={className}
                     onClick={() => this.props.onClick(row,column)}
-                />
+                >{this.renderTag(row,column)}</div>
             )
         }
     }

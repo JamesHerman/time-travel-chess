@@ -63,6 +63,16 @@ class App extends React.Component {
     })
   }
 
+  howToPlay() {
+    this.state.socket.disconnect();
+    this.setState({
+      isWhitePlayer:true,
+      gameStarted:true,
+      singlePlayer:true,
+      howToPlay:true
+    })
+  }
+
   render() {
     if(this.state.gameStarted) {
       return (
@@ -72,6 +82,7 @@ class App extends React.Component {
                 connection={this.state.socket}
                 playerColor={this.state.isWhitePlayer?'white':'black'}
                 singlePlayer={this.state.singlePlayer}
+                howToPlay={this.state.howToPlay}
               />
             </div>
         </div>
@@ -87,6 +98,7 @@ class App extends React.Component {
                 waiting={this.state.waiting}
                 gameID={this.state.gameID}
                 singlePlayer={()=> this.singlePlayerGame()}
+                howToPlay={()=>this.howToPlay()}
               />
             </div>
         </div>

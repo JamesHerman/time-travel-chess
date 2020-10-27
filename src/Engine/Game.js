@@ -80,6 +80,9 @@ class Game extends React.Component {
     componentDidMount() {
         this.listenForMove();
         this.listenForReset();
+        if (this.props.howToPlay) {
+            this.openTutorial();
+        }
     }
 
     listenForMove() {//Set up move listener for moves from other player
@@ -466,7 +469,9 @@ class Game extends React.Component {
         const newDialog = <Dialog
             text={text}
             response={response}
-            dismiss={() => this.closeDialog()}
+            dismiss={() => {
+                this.closeDialog()
+            }}
         />
         for(const existingDialog of this.state.dialogs) {
             if (existingDialog.props.text === newDialog.props.text) {
@@ -482,6 +487,10 @@ class Game extends React.Component {
         this.setState({
             dialogs: this.state.dialogs.slice(1)
         })
+    }
+
+    openTutorial() {
+        this.openDialog('Use the buttons below the board, or click on any move in the timeline to time travel. Pieces cannot move if they are about to be captured, about to move, or if the move would cause your king to be in check at any point in the timeline.');
     }
 
 
