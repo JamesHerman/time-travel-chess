@@ -19,7 +19,7 @@
   },
 
   "engines": {
-    "node": "12.x"
+    "node": "22.x"
   },
   "scripts": {
     "start-client": "react-scripts start",
